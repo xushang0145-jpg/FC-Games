@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FC 游戏</title>
+<link rel="stylesheet" href="/src/game/style.css">
+</head>
+<body>
+
+<nav class="topbar">
+  <button class="topbar__back" id="back-to-list">&#8592; 返回列表</button>
+  <div class="topbar__spacer"></div>
+  <button class="topbar__keybind-btn" id="keybind-btn">&#127918; 按键设置</button>
+</nav>
+
+<div class="canvas-container" id="canvas-container">
+  <canvas class="game-canvas" id="game-canvas" width="256" height="240"></canvas>
+</div>
+
+<div class="start-overlay" id="start-overlay">
+  <div class="start-panel">
+    <div class="start-panel__title" id="game-title">&#127918; 加载中...</div>
+    <div class="start-panel__subtitle">经典 FC 游戏 · NES 模拟器</div>
+    <div class="start-panel__steps">
+      <button class="btn btn--coin" id="coin-btn">&#129689; 投 币 (Select)</button>
+      <button class="btn btn--start" id="start-btn" disabled>&#9654; 开 始 (Start)</button>
+    </div>
+    <div class="start-panel__hint">提示：投币后点击"开始"启动游戏</div>
+  </div>
+</div>
+
+<div class="error-overlay" id="error-panel">
+  <div class="error-panel">
+    <div class="error-panel__icon">&#9888;</div>
+    <div class="error-panel__text" id="error-msg">游戏加载失败</div>
+    <div class="error-panel__actions">
+      <button class="btn--sm btn--save" id="retry-btn">重试</button>
+      <button class="btn--sm btn--cancel" id="error-back-btn">返回列表</button>
+    </div>
+  </div>
+</div>
+
+<div class="unsupported-banner" id="unsupported-banner">
+  您的浏览器不支持 Canvas 或 Web Audio API，无法运行游戏。请使用 Chrome、Firefox 或 Edge 的最新版本。
+</div>
+
+<div class="keybind-backdrop" id="keybind-backdrop"></div>
+<div class="keybind-panel" id="keybind-panel">
+  <div class="keybind-panel__header">
+    <div class="keybind-panel__title">按键设置</div>
+    <button class="keybind-panel__close" id="keybind-close">&#10005;</button>
+  </div>
+  <div class="keybind-panel__body" id="keybind-body"></div>
+  <div class="conflict-tip" id="conflict-tip">&#9888; 该按键已被其他操作使用，请选择其他按键</div>
+  <div class="keybind-panel__footer">
+    <button class="btn--sm btn--cancel" id="keybind-cancel">取消</button>
+    <button class="btn--sm btn--save" id="keybind-save">保存设置</button>
+  </div>
+</div>
+
+<script type="module" src="/src/game/main.js"></script>
+</body>
+</html>

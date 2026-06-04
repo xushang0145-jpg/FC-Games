@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FC 游戏合集</title>
+<link rel="stylesheet" href="/src/list/style.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="header__logo">
+    <div class="header__icon">FC</div>
+    <div class="header__title">FC<span>游戏合集</span></div>
+  </div>
+  <div class="header__count" id="game-count">加载中...</div>
+</header>
+
+<div class="search-bar">
+  <div class="search-bar__wrapper">
+    <span class="search-bar__icon">&#128269;</span>
+    <input class="search-bar__input" id="search-input" placeholder="搜索游戏名称..." type="text" autocomplete="off">
+  </div>
+</div>
+
+<main class="main">
+  <div class="game-grid" id="game-grid"></div>
+  <div class="empty-state" id="empty-state">
+    <div class="empty-state__icon">&#127918;</div>
+    <div class="empty-state__text">没有找到匹配的游戏</div>
+  </div>
+</main>
+
+<script type="module" src="/src/list/main.js"></script>
+</body>
+</html>

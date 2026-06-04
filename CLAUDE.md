@@ -2,94 +2,81 @@
 
 本文件为 Claude Code (claude.ai/code) 提供该代码仓库的工作指引。
 
-## 开发方法论：规范驱动开发 (Specification-Driven Development, SDD)
 
-本项目遵循 SDD —— 先定规范，再写代码。所有开发工作按以下流程执行：
+本项目遵循 [constitution.md](./.specify/memory/constitution.md)（v1.0.0），它是所有开发实践的最高准则。以下是五大核心原则摘要，完整内容以宪章原文为准：
 
-1. **规范 (Spec)** — 明确要做什么：功能需求、边界条件、验收标准。输出为规范文档（可内嵌于方案文档中）。
-2. **方案 (Plan)** — 明确怎么做：架构设计、组件/模块划分、数据流、技术选型。使用 `brainstorming` + `writing-plans` 技能产出结构化方案文档。
-3. **实现 (Implement)** — 严格按照方案文档执行编码。不偏离方案，不在实现阶段做设计决策。
-4. **验证 (Verify)** — 对照规范和方案逐项确认：功能是否符合预期、边界条件是否覆盖。使用 `verification-before-completion` 技能。
+1. **规范驱动开发 (SDD)** — 先定规范，再写代码。任何功能/改动/修复在编码前 MUST 有书面规范和方案并获用户确认。
+2. **方案即契约** — 方案文档是实现的唯一依据。实现偏离方案时 MUST 回退到方案阶段修订，禁止在编码时"临时发挥"。
+3. **渐进交付与独立可测** — 功能按 P1→P2→P3 拆分为独立用户故事，每个故事可独立实现、测试、交付。MVP (P1) 完成后先验证再决定是否继续。
+4. **性能即功能** — NES 模拟要求稳定 60 fps，任何改动 MUST 不影响模拟性能。性能基准：60 fps 渲染、音频无感知延迟、ROM 加载后首次可玩 < 3 秒。
+5. **简洁优先 (YAGNI)** — 不做当前不需要的抽象，不预留未来接口。三个相似行不急于抽取，不引入未使用依赖。
 
-**关键原则：**
-- 任何新功能、改动、修复在写第一行代码之前，必须先有书面规范和方案，并得到用户确认。
-- 方案文档是实现的唯一依据。若实现中发现方案问题，回到方案阶段修订，不在代码中"临时发挥"。
-- 小改动（拼写修正、格式调整等纯机械操作）可跳过 SDD 流程，但仍需简要说明改动内容。
+## 开发工作流
+
+每个功能经过以下六个阶段，不得跳过或合并：
+
+| 阶段 | 命令 | 产出 | 说明 |
+| --- | --- | --- | --- |
+| 1. 规范 | `speckit-specify` | `spec.md` | 用户故事、验收场景、功能需求、边界条件 |
+| 2. 澄清 | `speckit-clarify` | 更新 `spec.md` | 解决规范中的歧义和缺失项 |
+| 3. 方案 | `speckit-plan` | `plan.md` | 架构设计、组件划分、数据流、技术选型 |
+| 4. 任务 | `speckit-tasks` | `tasks.md` | 按用户故事分组的可执行任务 |
+| 5. 实现 | `speckit-implement` | 代码 + 提交 | 严格按 tasks.md 编码，逐任务提交 |
+| 6. 验证 | `verification-before-completion` | 验证报告 | 对照规范和方案逐项确认 |
+
+**微小改动例外**: 不改变任何行为或接口的纯机械操作（拼写修正、格式调整）可跳过完整流程，但需简要说明改动内容。
+
+**质量门禁**:
+- 每个用户故事的验收场景 MUST 全部通过
+- P1 故事 MUST 完成才能合并到主分支
+- 性能关键路径改动 MUST 手动验证 60 fps 未退化
+
+## 技术约束
+
+## 项目宪章
+这是一个处于早期阶段的 FC（红白机）游戏合集网站。`node_modules/` 已存在（依赖已安装），但 `package.json`、`index.html` 以及所有应用源代码尚未纳入仓库。
+- **目标平台**: 现代浏览器（Chrome、Firefox、Safari、Edge 最近 2 个主版本），桌面端优先
+- **语言**: JavaScript / TypeScript
+- **代码规范**: 所有文档、注释、提交信息 MUST 使用中文
+- **核心依赖**: `jsnes@1.2.1`（不可替换）、`vite`（构建工具）、`vitest`（单元测试）、`@playwright/test`（E2E 测试）
 
 ## 项目状态
 
-这是一个处于早期阶段的 FC（红白机）游戏合集网站。项目目前拥有游戏 ROM 资源，但缺少核心源文件。`node_modules/` 目录已存在（依赖已安装），但 `package.json`、`index.html` 以及所有应用源代码尚未纳入仓库。
 
-**从 `node_modules/.package-lock.json` 推断的技术栈：**
-- **NES 模拟核心：** `jsnes@1.2.1`
-- **构建工具：** `vite@5.4.21`
-- **测试（计划使用，安装不完整）：** `@vitest`、`@playwright/test`
-
-
-所有游戏 ROM 存放在 `roms/` 目录下，格式为 `.nes`。共有 80 余款游戏，包括 超级玛丽、魂斗罗、忍者神龟、坦克大战、冒险岛 等。ROM 文件名使用中文（例如 `超级玛莉.nes`、`魂斗罗.nes`）。
-
-实现前端时，ROM 文件应作为静态资源提供，通过 `fetch` 加载为二进制数据（ArrayBuffer）后传入 `jsnes`。
+所有游戏 ROM（80+ 款）存放在 `roms/` 目录下，格式为 `.nes`。文件名使用中文（例如 `超级玛莉.nes`、`魂斗罗.nes`）。
 
 ## 预期开发命令
 
-在 `package.json` 和源文件恢复/创建后，典型的 Vite 工作流如下：
-
 ```bash
-# 安装依赖（node_modules/ 已存在）
-npm install
-
-# 启动开发服务器
-npm run dev
-
-# 生产构建
-npm run build
-
-# 预览生产构建
-npm run preview
+npm install                    # 安装依赖
+npm run dev                    # 启动开发服务器
+npm run build                  # 生产构建
+npm run preview                # 预览生产构建
+npx vitest                     # 运行单元测试
+npx vitest run                 # CI 模式运行单元测试
+npx playwright test            # 运行 E2E 测试
+npx playwright test <file>     # 运行单个 E2E 测试
 ```
 
-若配置了 Vitest 和 Playwright：
+## `jsnes` 集成架构
 
-```bash
-# 运行单元测试
-npx vitest
+`jsnes`（v1.2.1）是底层 NES 模拟器，浏览器集成需连接以下四个模块：
 
-# 以 CI 模式运行单元测试
-npx vitest run
+3. **画面渲染** — `onFrame` 回调接收 `frameBuffer`（256×240×3 RGB 数组），绘制到 `<canvas>`。稳定 60 fps，主线程保持轻量。
+4. **音频输出** — `onAudioSample(left, right)` 回调，样本入队到 `AudioContext`。宿主代码以约 60 fps 驱动 `nes.frame()`。
+5. **输入控制** — 键盘/手柄事件映射到 `nes.buttonDown(controller, button)` / `buttonUp`。常量见 `jsnes.Controller`（`BUTTON_A`、`BUTTON_B`、`BUTTON_START`、`BUTTON_SELECT`、`BUTTON_UP`、`BUTTON_DOWN`、`BUTTON_LEFT`、`BUTTON_RIGHT`）。
+6. **ROM 加载** — `nes.loadROM(romData)` 接收二进制字符串或字节数组。ROM 作为静态资源通过 `fetch` 加载为 `ArrayBuffer`。
 
-# 运行端到端测试
-npx playwright test
-
-# 运行单个端到端测试文件
-npx playwright test tests/example.spec.ts
-```
-
-## `jsnes` 集成架构要点
-
-`jsnes`（v1.2.1）是一个底层 NES 模拟器。典型的浏览器集成需要连接以下三个模块：
-
-1. **画面渲染：** 在 `new jsnes.NES({ onFrame: ... })` 中传入 `onFrame` 回调。该回调接收一个 `frameBuffer`（长度为 256 × 240 × 3 的 RGB 数组），每帧绘制到 `<canvas>` 上。
-
-2. **音频输出：** 传入 `onAudioSample(left, right)` 回调。音频样本需入队到 `AudioContext` 播放。`jsnes` 不处理时序或音频调度——宿主代码负责以约 60 fps 驱动 `nes.frame()`。
-
-3. **输入控制：** 将键盘/手柄事件映射到 `nes.buttonDown(controller, button)` 和 `nes.buttonUp(controller, button)`。常量位于 `jsnes.Controller` 上（例如 `jsnes.Controller.BUTTON_A`、`BUTTON_B`、`BUTTON_START`、`BUTTON_SELECT`、`BUTTON_UP` 等）。
-
-4. **ROM 加载：** 通过 `nes.loadROM(romData)` 以二进制字符串或字节数组加载 ROM。使用 Vite 时，可将 ROM 放在 `public/roms/`（或保留现有 `roms/` 并在 `vite.config.js` 中配置静态服务），运行时通过 `fetch` 获取。
-
-参考：`node_modules/jsnes/example/nes-embed.js` 包含一个基础（非 React）嵌入示例。`node_modules/jsnes/README.md` 记录了完整 API。
+参考：`node_modules/jsnes/example/nes-embed.js` 和 `node_modules/jsnes/README.md`。
 
 ## 缺失文件
 
-要使项目可运行，需创建或恢复以下文件：
-- `package.json`
-- `index.html`（Vite 入口）
-- `vite.config.js` / `vite.config.ts`
-- 应用源代码（HTML、JS/TS、CSS）
-- 测试配置（若使用 Vitest/Playwright）
-
-## ROM 资源
+要使项目可运行，需创建：`package.json`、`index.html`、`vite.config.js`、应用源代码（HTML/JS/TS/CSS）、测试配置。
 
 <!-- SPECKIT START -->
-For additional context about technologies to be used, project structure,
-shell commands, and other important information, read the current plan
+当前功能方案: [specs/001-games-collection/plan.md](./specs/001-games-collection/plan.md)
+
+FC 游戏合集 — 纯前端 Web 应用，Vite 多页面构建（index.html 列表页 + game.html 游戏页），
+jsnes 模拟器核心，localStorage 持久化按键配置，88 款 ROM 静态资源。
+请阅读 plan.md 中的技术上下文、项目结构、宪章合规检查等章节。
 <!-- SPECKIT END -->
