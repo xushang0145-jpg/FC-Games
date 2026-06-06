@@ -85,4 +85,110 @@ test.describe('游戏运行页', () => {
     });
     expect(hasContent).toBeGreaterThan(100);
   });
+
+  test('键盘数字 1/2 可完成投币和开始', async ({ page }) => {
+    await page.goto('/game.html?rom=超级玛莉.nes');
+
+    // 等待 ROM 加载完成
+    await page.waitForFunction(() => {
+      const btn = document.getElementById('coin-btn');
+      return btn && btn.textContent.includes('投 币');
+    }, { timeout: 10000 });
+
+    // 按数字 1（Select/投币）
+    await page.keyboard.press('Digit1');
+
+    // 等待模拟器处理
+    await page.waitForTimeout(200);
+
+    // 按数字 2（Start/开始）
+    await page.keyboard.press('Digit2');
+
+    // 等待 start-overlay 消失
+    await page.waitForFunction(() => {
+      const overlay = document.getElementById('start-overlay');
+      return overlay && overlay.classList.contains('start-overlay--hidden');
+    }, { timeout: 5000 });
+  });
+
+  test('WASD 方向键和 JK 按钮可触发游戏输入', async ({ page }) => {
+    await page.goto('/game.html?rom=超级玛莉.nes');
+
+    // 等待 ROM 加载完成
+    await page.waitForFunction(() => {
+      const btn = document.getElementById('coin-btn');
+      return btn && btn.textContent.includes('投 币');
+    }, { timeout: 10000 });
+
+    // 投币 → 开始（用按钮）
+    await page.click('#coin-btn');
+    await page.click('#start-btn');
+
+    // 等待游戏运行
+    await page.waitForFunction(() => {
+      const overlay = document.getElementById('start-overlay');
+      return overlay && overlay.classList.contains('start-overlay--hidden');
+    }, { timeout: 5000 });
+
+    await page.waitForTimeout(300);
+
+    // 验证按键事件能被监听器接收（按下 W/A/S/D/J/K 不会抛异常）
+    // Playwright 可发送键盘事件，验证游戏持续运行
+    await page.keyboard.down('KeyW');
+    await page.waitForTimeout(100);
+    await page.keyboard.up('KeyW');
+
+    await page.keyboard.down('KeyA');
+    await page.waitForTimeout(100);
+    await page.keyboard.up('KeyA');
+
+    await page.keyboard.down('KeyD');
+    await page.waitForTimeout(100);
+    await page.keyboard.up('KeyD');
+
+    await page.keyboard.down('KeyJ');
+    await page.waitForTimeout(100);
+    await page.keyboard.up('KeyJ');
+
+    await page.keyboard.down('KeyK');
+    await page.waitForTimeout(100);
+    await page.keyboard.up('KeyK');
+
+    // 页面不应崩溃（Canvas 仍存在）
+    const canvas = page.locator('#game-canvas');
+    await expect(canvas).toBeVisible();
+  });
+
+  test('连发 I/U 键按住后可正常运行', async ({ page }) => {
+    await page.goto('/game.html?rom=超级玛莉.nes');
+
+    await page.waitForFunction(() => {
+      const btn = document.getElementById('coin-btn');
+      return btn && btn.textContent.includes('投 币');
+    }, { timeout: 10000 });
+
+    await page.click('#coin-btn');
+    await page.click('#start-btn');
+
+    await page.waitForFunction(() => {
+      const overlay = document.getElementById('start-overlay');
+      return overlay && overlay.classList.contains('start-overlay--hidden');
+    }, { timeout: 5000 });
+
+    await page.waitForTimeout(300);
+
+    // 按住 I 键（A 连发）500ms
+    await page.keyboard.down('KeyI');
+    await page.waitForTimeout(500);
+    await page.keyboard.up('KeyI');
+
+    // 按住 U 键（B 连发）500ms
+    await page.keyboard.down('KeyU');
+    await page.waitForTimeout(500);
+    await page.keyboard.up('KeyU');
+
+    // 游戏不应崩溃
+    const canvas = page.locator('#game-canvas');
+    await expect(canvas).toBeVisible();
+  });
 });
