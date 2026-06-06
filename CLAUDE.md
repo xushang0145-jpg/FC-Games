@@ -74,9 +74,9 @@ npx playwright test <file>     # 运行单个 E2E 测试
 要使项目可运行，需创建：`package.json`、`index.html`、`vite.config.js`、应用源代码（HTML/JS/TS/CSS）、测试配置。
 
 <!-- SPECKIT START -->
-当前功能方案: [specs/001-games-collection/plan.md](./specs/001-games-collection/plan.md)
+当前功能方案: [specs/002-game-detail-page/plan.md](./specs/002-game-detail-page/plan.md)
 
-FC 游戏合集 — 纯前端 Web 应用，Vite 多页面构建（index.html 列表页 + game.html 游戏页），
-jsnes 模拟器核心，localStorage 持久化按键配置，88 款 ROM 静态资源。
+游戏详情页交互 — 列表页点击卡片弹出详情浮层，展示游戏信息和按键说明，
+支持"开始游戏"跳转、最近游玩记录、快捷键盘操作。
 请阅读 plan.md 中的技术上下文、项目结构、宪章合规检查等章节。
 <!-- SPECKIT END -->

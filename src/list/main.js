@@ -1,4 +1,6 @@
 import { loadKeyBindings } from '../shared/storage.js';
+import { createDetailModal } from './detail-modal.js';
+import { getPlayHistory, getAllPlayHistory } from '../shared/play-history.js';
 
 // 游戏表情图标（按文件名关键词匹配）
 const GAME_ICONS = {
@@ -31,8 +33,9 @@ function buildGameList() {
 }
 
 const games = buildGameList();
+const detailModal = createDetailModal();
 
-function createCard(game) {
+function createCard(game, playRecord) {
   const div = document.createElement('div');
   div.className = 'game-card';
   div.setAttribute('data-game-id', game.id);
@@ -48,30 +51,95 @@ function createCard(game) {
   div.appendChild(icon);
   div.appendChild(name);
 
+  // 最近玩过标签
+  if (playRecord && playRecord.lastPlayedAt) {
+    const recentBadge = document.createElement('div');
+    recentBadge.className = 'game-card__recent';
+    const diff = Date.now() - new Date(playRecord.lastPlayedAt).getTime();
+    if (diff < 3600000) {
+      recentBadge.textContent = Math.floor(diff / 60000) + '分钟前';
+    } else if (diff < 86400000) {
+      recentBadge.textContent = Math.floor(diff / 3600000) + '小时前';
+    } else {
+      recentBadge.textContent = Math.floor(diff / 86400000) + '天前';
+    }
+    div.appendChild(recentBadge);
+  }
+
   div.addEventListener('click', () => {
-    window.open(`/game.html?rom=${encodeURIComponent(game.id)}`, '_blank');
+    const bindings = loadKeyBindings(game.id);
+    detailModal.open(game, bindings, playRecord);
   });
 
   return div;
 }
+
+let currentFilter = 'all'; // 'all' | 'recent'
 
 function renderGrid(filterText = '') {
   const grid = document.getElementById('game-grid');
   const emptyState = document.getElementById('empty-state');
   grid.innerHTML = '';
 
-  const filtered = filterText
+  // 按名称搜索过滤
+  let filtered = filterText
     ? games.filter(g => g.name.includes(filterText))
     : games;
+
+  // 按最近玩过过滤
+  if (currentFilter === 'recent') {
+    const allHistory = getAllPlayHistory();
+    filtered = filtered.filter(g => allHistory[g.id]);
+    // 按最近游玩时间排序
+    filtered.sort((a, b) => {
+      const ta = new Date(allHistory[a.id]).getTime();
+      const tb = new Date(allHistory[b.id]).getTime();
+      return tb - ta;
+    });
+  }
 
   if (filtered.length === 0) {
     emptyState.classList.add('empty-state--visible');
   } else {
     emptyState.classList.remove('empty-state--visible');
-    filtered.forEach(g => grid.appendChild(createCard(g)));
+    filtered.forEach(g => {
+      const playRecord = getPlayHistory(g.id);
+      grid.appendChild(createCard(g, playRecord));
+    });
   }
 
-  document.getElementById('game-count').textContent = `共 ${games.length} 款游戏`;
+  document.getElementById('game-count').textContent = '共 ' + games.length + ' 款游戏';
+}
+
+// 创建筛选标签 UI
+function createFilterTags() {
+  const searchBar = document.querySelector('.search-bar');
+  const tags = document.createElement('div');
+  tags.className = 'filter-tags';
+
+  const allTag = document.createElement('button');
+  allTag.className = 'filter-tag filter-tag--active';
+  allTag.textContent = '全部';
+  allTag.addEventListener('click', () => {
+    currentFilter = 'all';
+    allTag.classList.add('filter-tag--active');
+    recentTag.classList.remove('filter-tag--active');
+    renderGrid(document.getElementById('search-input').value.trim());
+  });
+
+  const recentTag = document.createElement('button');
+  recentTag.className = 'filter-tag';
+  recentTag.textContent = '⭐ 最近玩过';
+  recentTag.addEventListener('click', () => {
+    currentFilter = 'recent';
+    recentTag.classList.add('filter-tag--active');
+    allTag.classList.remove('filter-tag--active');
+    renderGrid(document.getElementById('search-input').value.trim());
+  });
+
+  tags.appendChild(allTag);
+  tags.appendChild(recentTag);
+  searchBar.appendChild(tags);
 }
 
 // 搜索过滤
@@ -79,5 +147,6 @@ document.getElementById('search-input').addEventListener('input', (e) => {
   renderGrid(e.target.value.trim());
 });
 
-// 初始渲染
+// 初始化
+createFilterTags();
 renderGrid();

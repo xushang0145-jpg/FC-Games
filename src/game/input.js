@@ -73,7 +73,7 @@ export function createInputHandler(emulator, bindings) {
     const action = codeMap[e.code];
     if (action) {
       e.preventDefault();
-      emulator.buttonDown(0, getControllerButton(action));
+      emulator.buttonDown(1, getControllerButton(action));
     }
   }
 
@@ -81,7 +81,7 @@ export function createInputHandler(emulator, bindings) {
     const action = codeMap[e.code];
     if (action) {
       e.preventDefault();
-      emulator.buttonUp(0, getControllerButton(action));
+      emulator.buttonUp(1, getControllerButton(action));
     }
   }
 

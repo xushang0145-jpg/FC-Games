@@ -47,4 +47,42 @@ test.describe('游戏运行页', () => {
     await page.click('#back-to-list');
     await page.waitForURL('**/');
   });
+
+  test('启动游戏后 Canvas 有非空像素渲染', async ({ page }) => {
+    await page.goto('/game.html?rom=超级玛莉.nes');
+
+    // 等待 ROM 加载完成
+    await page.waitForFunction(() => {
+      const btn = document.getElementById('coin-btn');
+      return btn && btn.textContent.includes('投 币');
+    }, { timeout: 10000 });
+
+    // 投币 → 开始
+    await page.click('#coin-btn');
+    await page.click('#start-btn');
+
+    // 等待 start-overlay 消失
+    await page.waitForFunction(() => {
+      const overlay = document.getElementById('start-overlay');
+      return overlay && overlay.classList.contains('start-overlay--hidden');
+    }, { timeout: 5000 });
+
+    // 等待几帧渲染
+    await page.waitForTimeout(500);
+
+    // 检查 Canvas 像素——至少部分像素不是纯黑
+    const hasContent = await page.evaluate(() => {
+      const canvas = document.getElementById('game-canvas');
+      const ctx = canvas.getContext('2d');
+      const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      let nonZero = 0;
+      for (let i = 0; i < data.length; i += 4) {
+        if (data[i] !== 0 || data[i + 1] !== 0 || data[i + 2] !== 0) {
+          nonZero++;
+        }
+      }
+      return nonZero;
+    });
+    expect(hasContent).toBeGreaterThan(100);
+  });
 });
