@@ -117,9 +117,16 @@ git push origin main
 | 中文文件名 URL 编码 | ✅ 通过 |
 | 环境变量注入 | ✅ 通过 |
 | SPA 路由回退 | ✅ 通过 |
-| GitHub 自动部署 | ⚠️ 待完成（私有仓库需在 Dashboard 手动连接）|
+| GitHub 自动部署 | ✅ 通过 — 推送 main 分支后 7s 内自动创建 Production Deployment |
+| 构建失败保护 | ✅ 通过 — 故意引入语法错误，Vercel 构建失败，线上版本不变 |
+| 自定义域名 | ⏳ DNS 同步中（fc90s.com） |
+
+**自定义域名**:
+- 域名: `fc90s.com`
+- DNS: 阿里云万网（A 记录 → 76.76.21.21）
+- SSL: Vercel 自动申请并配置
+- 状态: DNS 全球同步中，本地网络可能存在缓存拦截
 
 **已知限制**:
-- GitHub 仓库为私有，Vercel Git 集成需在 Dashboard 中手动授权连接
 - 当前为纯静态模式，无后端服务
 - 环境变量 `VITE_API_ENDPOINT` / `VITE_WS_ENDPOINT` 当前为空，未来填入后端地址后重新部署即可启用
