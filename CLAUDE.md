@@ -62,7 +62,7 @@ npx playwright test <file>     # 运行单个 E2E 测试
 
 `jsnes`（v1.2.1）是底层 NES 模拟器，浏览器集成需连接以下四个模块：
 
-3. **画面渲染** — `onFrame` 回调接收 `frameBuffer`（256×240×3 RGB 数组），绘制到 `<canvas>`。稳定 60 fps，主线程保持轻量。
+3. **画面渲染** — `onFrame` 回调接收 `frameBuffer`（256×240 数组，每元素为 24 位 BGR 颜色值 0xBBGGRR），绘制到 `<canvas>`。稳定 60 fps，主线程保持轻量。
 4. **音频输出** — `onAudioSample(left, right)` 回调，样本入队到 `AudioContext`。宿主代码以约 60 fps 驱动 `nes.frame()`。
 5. **输入控制** — 键盘/手柄事件映射到 `nes.buttonDown(controller, button)` / `buttonUp`。常量见 `jsnes.Controller`（`BUTTON_A`、`BUTTON_B`、`BUTTON_START`、`BUTTON_SELECT`、`BUTTON_UP`、`BUTTON_DOWN`、`BUTTON_LEFT`、`BUTTON_RIGHT`）。
 6. **ROM 加载** — `nes.loadROM(romData)` 接收二进制字符串或字节数组。ROM 作为静态资源通过 `fetch` 加载为 `ArrayBuffer`。
@@ -74,9 +74,7 @@ npx playwright test <file>     # 运行单个 E2E 测试
 要使项目可运行，需创建：`package.json`、`index.html`、`vite.config.js`、应用源代码（HTML/JS/TS/CSS）、测试配置。
 
 <!-- SPECKIT START -->
-当前功能方案: [specs/002-game-detail-page/plan.md](./specs/002-game-detail-page/plan.md)
+当前功能方案: [specs/003-fix-rpg-color-misalign/plan.md](./specs/003-fix-rpg-color-misalign/plan.md)
 
-游戏详情页交互 — 列表页点击卡片弹出详情浮层，展示游戏信息和按键说明，
-支持"开始游戏"跳转、最近游玩记录、快捷键盘操作。
-请阅读 plan.md 中的技术上下文、项目结构、宪章合规检查等章节。
+修复 RPG 游戏颜色错位 — jsnes 调色板为 BGR 格式（0xBBGGRR），修复宿主代码中帧缓冲到 Canvas ImageData 的 R/B 通道映射，确保画面颜色与实际 NES 输出一致。
 <!-- SPECKIT END -->
