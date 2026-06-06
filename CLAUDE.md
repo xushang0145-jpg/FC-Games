@@ -74,7 +74,7 @@ npx playwright test <file>     # 运行单个 E2E 测试
 要使项目可运行，需创建：`package.json`、`index.html`、`vite.config.js`、应用源代码（HTML/JS/TS/CSS）、测试配置。
 
 <!-- SPECKIT START -->
-当前功能方案: [specs/003-fix-rpg-color-misalign/plan.md](./specs/003-fix-rpg-color-misalign/plan.md)
+当前功能方案: [specs/004-update-default-keybindings/plan.md](./specs/004-update-default-keybindings/plan.md)
 
-修复 RPG 游戏颜色错位 — jsnes 调色板为 BGR 格式（0xBBGGRR），修复宿主代码中帧缓冲到 Canvas ImageData 的 R/B 通道映射，确保画面颜色与实际 NES 输出一致。
+修改 FC 模拟器默认按键映射：WASD 方向 + J/K 按钮 + 1/2 投币开始 + I/U 连发。保持已有自定义配置向后兼容。
 <!-- SPECKIT END -->

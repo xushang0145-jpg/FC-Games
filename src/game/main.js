@@ -42,6 +42,7 @@ async function initGame(romFile) {
   function updateInput() {
     document.removeEventListener('keydown', inputHandler.onKeyDown);
     document.removeEventListener('keyup', inputHandler.onKeyUp);
+    if (inputHandler.destroy) inputHandler.destroy();
     inputHandler = createInputHandler(emulator, bindings);
     document.addEventListener('keydown', inputHandler.onKeyDown);
     document.addEventListener('keyup', inputHandler.onKeyUp);
@@ -103,6 +104,7 @@ async function initGame(romFile) {
   window.addEventListener('beforeunload', () => {
     document.removeEventListener('keydown', inputHandler.onKeyDown);
     document.removeEventListener('keyup', inputHandler.onKeyUp);
+    if (inputHandler.destroy) inputHandler.destroy();
     emulator.stop();
   });
 
