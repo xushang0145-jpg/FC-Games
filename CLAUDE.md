@@ -74,7 +74,7 @@ npx playwright test <file>     # 运行单个 E2E 测试
 要使项目可运行，需创建：`package.json`、`index.html`、`vite.config.js`、应用源代码（HTML/JS/TS/CSS）、测试配置。
 
 <!-- SPECKIT START -->
-当前功能方案: [specs/004-update-default-keybindings/plan.md](./specs/004-update-default-keybindings/plan.md)
+当前功能方案: [specs/005-project-deployment/plan.md](./specs/005-project-deployment/plan.md)
 
-修改 FC 模拟器默认按键映射：WASD 方向 + J/K 按钮 + 1/2 投币开始 + I/U 连发。保持已有自定义配置向后兼容。
+将 FC 游戏合集网站部署到 Vercel 平台：公网可访问、GitHub 推送自动构建部署、预留 API/WebSocket 端点配置以支持未来存档/联机功能。
 <!-- SPECKIT END -->
