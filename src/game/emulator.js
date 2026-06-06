@@ -17,14 +17,14 @@ function arrayBufferToBinaryString(buf) {
   return chunks.join('');
 }
 
-/** frameBuffer (每像素一个 24 位颜色值 0xRRGGBB) → 复用的 ImageData (RGBA) */
+/** frameBuffer (每像素一个 24 位颜色值 0xBBGGRR) → 复用的 ImageData (RGBA) */
 function updateImageDataFromFrame(frameBuffer, img) {
   const d = img.data;
   for (let i = 0; i < frameBuffer.length; i++) {
     const color = frameBuffer[i];
-    d[i * 4] = (color >> 16) & 0xFF;
+    d[i * 4] = color & 0xFF;
     d[i * 4 + 1] = (color >> 8) & 0xFF;
-    d[i * 4 + 2] = color & 0xFF;
+    d[i * 4 + 2] = (color >> 16) & 0xFF;
     d[i * 4 + 3] = 255;
   }
 }
