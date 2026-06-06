@@ -74,7 +74,7 @@ npx playwright test <file>     # 运行单个 E2E 测试
 要使项目可运行，需创建：`package.json`、`index.html`、`vite.config.js`、应用源代码（HTML/JS/TS/CSS）、测试配置。
 
 <!-- SPECKIT START -->
-当前功能方案: [specs/005-project-deployment/plan.md](./specs/005-project-deployment/plan.md)
+当前功能方案: [specs/006-analytics-tracking/plan.md](./specs/006-analytics-tracking/plan.md)
 
-将 FC 游戏合集网站部署到 Vercel 平台：公网可访问、GitHub 推送自动构建部署、预留 API/WebSocket 端点配置以支持未来存档/联机功能。
+实现埋点数据统计系统：页面浏览追踪、游戏交互追踪、统计仪表盘、数据导出。数据主存储使用 Supabase（PostgreSQL），网络失败时降级到 localStorage 暂存。
 <!-- SPECKIT END -->

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FC 运营分析</title>
+<link rel="stylesheet" href="/src/analytics/style.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="header__left">
+    <div class="header__icon">FC</div>
+    <div class="header__title">FC<span>运营分析</span></div>
+  </div>
+  <button class="header__back" id="back-btn">&#8592; 返回首页</button>
+</header>
+
+<div class="toolbar">
+  <div class="time-filter" id="time-filter">
+    <button class="time-filter__btn time-filter__btn--active" data-range="today">今日</button>
+    <button class="time-filter__btn" data-range="week">本周</button>
+    <button class="time-filter__btn" data-range="month">本月</button>
+    <button class="time-filter__btn" data-range="all">全部</button>
+  </div>
+  <button class="export-btn" id="export-btn">&#128229; 导出数据</button>
+</div>
+
+<main class="main">
+
+  <div class="kpi-grid" id="kpi-grid"></div>
+
+  <div class="section">
+    <div class="section__header">
+      <div class="section__title">
+        <span class="section__title-icon">&#128200;</span>
+        页面浏览排行
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>排名</th><th>页面路径</th><th>浏览次数</th><th>占比</th></tr>
+        </thead>
+        <tbody id="page-view-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section__header">
+      <div class="section__title">
+        <span class="section__title-icon">&#127918;</span>
+        游戏数据排行
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>排名</th><th>游戏名称</th><th>启动次数</th><th>总时长</th></tr>
+        </thead>
+        <tbody id="game-stats-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="section">
+      <div class="section__header">
+        <div class="section__title">
+          <span class="section__title-icon">&#128241;</span>
+          终端类型分布
+        </div>
+      </div>
+      <div class="device-grid" id="device-grid"></div>
+    </div>
+
+    <div class="section">
+      <div class="section__header">
+        <div class="section__title">
+          <span class="section__title-icon">&#127759;</span>
+          Top 10 访问城市
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>排名</th><th>城市</th><th>访问量</th></tr>
+          </thead>
+          <tbody id="city-stats-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" id="empty-state" style="display:none">
+    <div class="empty-state__icon">&#128196;</div>
+    <div class="empty-state__title">暂无数据</div>
+    <div class="empty-state__desc">当前时间范围内没有产生任何埋点数据</div>
+  </div>
+
+</main>
+
+<script type="module" src="/src/analytics/main.js"></script>
+</body>
+</html>

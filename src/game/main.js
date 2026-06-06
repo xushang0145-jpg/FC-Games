@@ -3,6 +3,7 @@ import { createEmulator } from './emulator.js';
 import { loadBinding, saveBinding, createInputHandler } from './input.js';
 import { createKeybindingUI } from './keybinding-ui.js';
 import { recordPlayHistory } from '../shared/play-history.js';
+import { trackPageView, trackGameStart, trackGameDuration, flushQueue } from '../shared/analytics.js';
 
 // ====== DOM 引用 ======
 const canvasEl = document.getElementById('game-canvas');
@@ -56,6 +57,7 @@ async function initGame(romFile) {
   // 先注册 UI 事件监听器（避免 ROM 加载期间用户点击无响应）
   let coinInserted = false;
   let romLoaded = false;
+  let gameStartTime = null;
 
   coinBtn.addEventListener('click', () => {
     if (!romLoaded) return;
@@ -71,6 +73,8 @@ async function initGame(romFile) {
     emulator.setupAudio();
     emulator.start();
     recordPlayHistory(romFile);
+    gameStartTime = Date.now();
+    trackGameStart(gameName);
     // 投币 + 开始：向模拟器发送 Select 再 Start
     const ctrl = jsnes.Controller;
     emulator.buttonDown(1, ctrl.BUTTON_SELECT);
@@ -95,13 +99,24 @@ async function initGame(romFile) {
     return result;
   });
 
+  // 记录游戏时长的辅助函数
+  function recordDuration() {
+    if (gameStartTime) {
+      const durationSeconds = Math.floor((Date.now() - gameStartTime) / 1000);
+      trackGameDuration(gameName, durationSeconds);
+      gameStartTime = null;
+    }
+  }
+
   // 返回列表
   document.getElementById('back-to-list').addEventListener('click', () => {
+    recordDuration();
     window.location.href = '/';
   });
 
   // 资源释放
   window.addEventListener('beforeunload', () => {
+    recordDuration();
     document.removeEventListener('keydown', inputHandler.onKeyDown);
     document.removeEventListener('keyup', inputHandler.onKeyUp);
     if (inputHandler.destroy) inputHandler.destroy();
@@ -144,3 +159,7 @@ function showError(msg, showRetry) {
   retryBtn.addEventListener('click', () => { window.location.reload(); });
   errorBackBtn.addEventListener('click', () => { window.location.href = '/'; });
 }
+
+// 埋点：页面浏览追踪（页面加载时，无论游戏是否加载成功）
+flushQueue();
+trackPageView('/game');

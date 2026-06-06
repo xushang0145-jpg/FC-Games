@@ -1,6 +1,7 @@
 import { loadKeyBindings } from '../shared/storage.js';
 import { createDetailModal } from './detail-modal.js';
 import { getPlayHistory, getAllPlayHistory } from '../shared/play-history.js';
+import { trackPageView, flushQueue } from '../shared/analytics.js';
 
 // 游戏表情图标（按文件名关键词匹配）
 const GAME_ICONS = {
@@ -150,3 +151,7 @@ document.getElementById('search-input').addEventListener('input', (e) => {
 // 初始化
 createFilterTags();
 renderGrid();
+
+// 埋点：页面浏览追踪
+flushQueue();
+trackPageView('/');

@@ -26,6 +26,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         game: resolve(__dirname, 'game.html'),
+        stats: resolve(__dirname, 'stats.html'),
       },
     },
   },

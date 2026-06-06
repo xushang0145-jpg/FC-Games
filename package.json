@@ -13,6 +13,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.107.0",
     "jsnes": "1.2.1"
   },
   "devDependencies": {
