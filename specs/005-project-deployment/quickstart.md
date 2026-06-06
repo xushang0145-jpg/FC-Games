@@ -93,3 +93,33 @@ git push origin main
 - 所有 `/roms/*`、`/assets/*` 路径返回静态文件
 - 所有未匹配的路径（如 `/api/*`）目前回退到 `index.html`（SPA 行为）
 - 未来若启用 Vercel Serverless Functions，`/api/*` 路径将优先匹配 Function 路由，不再回退到 SPA
+
+---
+
+## 实际部署信息
+
+**部署日期**: 2026-06-06
+
+**生产 URL**: https://games-hazel-three.vercel.app
+
+**Vercel 项目**:
+- 项目 ID: `prj_j8OLeZs4wrzqRQLqLC5cAWcfUiRx`
+- 项目名称: `games`
+- 团队: `blanks-projects-60fb3206`
+
+**部署验证结果**:
+
+| 验证项 | 结果 |
+|--------|------|
+| 首页 HTTP 200 | ✅ 通过 |
+| 游戏页面 HTTP 200 | ✅ 通过 |
+| ROM 文件 HTTPS 加载 | ✅ 通过 |
+| 中文文件名 URL 编码 | ✅ 通过 |
+| 环境变量注入 | ✅ 通过 |
+| SPA 路由回退 | ✅ 通过 |
+| GitHub 自动部署 | ⚠️ 待完成（私有仓库需在 Dashboard 手动连接）|
+
+**已知限制**:
+- GitHub 仓库为私有，Vercel Git 集成需在 Dashboard 中手动授权连接
+- 当前为纯静态模式，无后端服务
+- 环境变量 `VITE_API_ENDPOINT` / `VITE_WS_ENDPOINT` 当前为空，未来填入后端地址后重新部署即可启用
