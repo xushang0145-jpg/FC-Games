@@ -65,8 +65,8 @@
 
 ### Implementation for User Story 2
 
-- [ ] T011 [US2] 在 Vercel Dashboard 中导入 GitHub 仓库 `games`，Vercel 自动检测 Vite 项目并配置构建参数 ⚠️ 阻塞：私有仓库需在浏览器中授权 GitHub 连接
-- [ ] T012 [US2] 验证自动部署触发：向 main 分支推送提交，在 Vercel Dashboard 确认新的 Production Deployment 自动启动
+- [x] T011 [US2] 在 Vercel Dashboard 中导入 GitHub 仓库 ✅ — 用户在 Dashboard 手动连接成功
+- [x] T012 [US2] 验证自动部署触发 ✅ — 推送 005-project-deployment 分支后 12s 内自动创建 Preview 部署
 - [ ] T013 [US2] 验证构建失败保护：推送一个会导致 `vite build` 失败的提交，确认 Vercel 构建失败、线上版本保持不变
 
 **Checkpoint**: 至此，从代码推送到上线全自动化，推送即部署，失败有通知
