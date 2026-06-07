@@ -1,6 +1,7 @@
 /**
  * 统计仪表盘 API 封装
  * Supabase 查询（聚合统计、原始数据导出）
+ * Supabase 未配置时所有函数返回空数据
  */
 
 import { supabase } from '../shared/analytics.js';
@@ -41,6 +42,8 @@ function getTimeRange(range) {
  * KPI 汇总
  */
 export async function getKpiSummary(range) {
+  if (!supabase) return { totalPages: 0, totalStarts: 0, totalDuration: 0, uv: 0 };
+
   const { start, end } = getTimeRange(range);
   let query = supabase.from('events').select('event_type, user_id, duration_seconds', { count: 'exact' });
   if (start) query = query.gte('client_timestamp', start);
@@ -57,7 +60,7 @@ export async function getKpiSummary(range) {
   return {
     totalPages,
     totalStarts,
-    totalDuration: Math.floor(totalDuration / 60), // 转换为分钟
+    totalDuration: Math.floor(totalDuration / 60),
     uv: uniqueUsers,
   };
 }
@@ -66,6 +69,8 @@ export async function getKpiSummary(range) {
  * 页面浏览排行
  */
 export async function getPageViewStats(range) {
+  if (!supabase) return [];
+
   const { start, end } = getTimeRange(range);
   let query = supabase.from('events')
     .select('page_path, count')
@@ -92,6 +97,8 @@ export async function getPageViewStats(range) {
  * 游戏数据排行
  */
 export async function getGameStats(range) {
+  if (!supabase) return [];
+
   const { start, end } = getTimeRange(range);
   let query = supabase.from('events')
     .select('game_name, event_type, duration_seconds')
@@ -122,6 +129,8 @@ export async function getGameStats(range) {
  * 终端类型分布
  */
 export async function getDeviceStats(range) {
+  if (!supabase) return [];
+
   const { start, end } = getTimeRange(range);
   let query = supabase.from('events')
     .select('device_type, count')
@@ -148,6 +157,8 @@ export async function getDeviceStats(range) {
  * Top 10 访问城市
  */
 export async function getCityStats(range) {
+  if (!supabase) return [];
+
   const { start, end } = getTimeRange(range);
   let query = supabase.from('events')
     .select('city, country, count')
@@ -176,6 +187,11 @@ export async function getCityStats(range) {
  * 导出原始事件数据为 JSON 文件
  */
 export async function exportRawEvents(range) {
+  if (!supabase) {
+    alert('Supabase 未配置，无法导出数据。');
+    return;
+  }
+
   const { start, end } = getTimeRange(range);
   let query = supabase.from('events')
     .select('*')

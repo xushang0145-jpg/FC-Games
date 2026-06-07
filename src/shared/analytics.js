@@ -1,6 +1,7 @@
 /**
  * 埋点核心模块
  * Supabase 客户端初始化、事件发送、批量上报
+ * 当 Supabase 凭证未配置时，所有埋点函数静默降级为无操作
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -12,7 +13,18 @@ import { enqueue, dequeueAll } from './analytics-queue.js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+// 检测凭证是否有效（非空且非占位符）
+const hasCredentials = !!(
+  supabaseUrl &&
+  supabaseKey &&
+  !supabaseUrl.includes('your-project') &&
+  supabaseUrl.length > 10
+);
+
+// 仅在凭证有效时初始化 Supabase 客户端
+export const supabase = hasCredentials
+  ? createClient(supabaseUrl, supabaseKey)
+  : null;
 
 // 每次页面加载生成新的 session_id
 const sessionId = crypto.randomUUID();
@@ -52,11 +64,12 @@ async function buildEvent(baseEvent) {
 
 /**
  * 发送单个事件到 Supabase
- * 失败时降级到 localStorage 暂存
+ * 凭证缺失时静默跳过，失败时降级到 localStorage 暂存
  * @param {Object} event
  * @returns {Promise<boolean>} 是否成功
  */
 async function sendEvent(event) {
+  if (!supabase) return false;
   try {
     const { error } = await supabase.from('events').insert(event);
     if (error) throw error;
@@ -72,6 +85,7 @@ async function sendEvent(event) {
  * 在页面加载时调用
  */
 export async function flushQueue() {
+  if (!supabase) return;
   const queue = dequeueAll();
   if (queue.length === 0) return;
 
