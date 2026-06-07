@@ -30,9 +30,10 @@ function getControllerButton(action) {
  * @param {object} emulator - jsnes 模拟器实例（需暴露 buttonDown/buttonUp 方法）
  * @returns {object} 手柄控制接口
  */
-export function createVirtualGamepad(containerEl, emulator) {
+export function createVirtualGamepad(containerEl, emulator, options = {}) {
   // 跟踪每个手指：Map<identifier, {btnEl, action}>
   const activeTouches = new Map();
+  let firstInteractionDone = false;
 
   // ---- 创建 DOM 按钮 ----
   function createBtn(className, action, innerHTML) {
@@ -59,19 +60,19 @@ export function createVirtualGamepad(containerEl, emulator) {
   dpadEl.appendChild(dpadCenter);
   containerEl.appendChild(dpadEl);
 
-  // A / B 操作按钮
-  const actionsEl = document.createElement('div');
-  actionsEl.className = 'gamepad-actions';
-  actionsEl.appendChild(createBtn('gamepad-action-btn gamepad-action-btn--b', 'b', 'B'));
-  actionsEl.appendChild(createBtn('gamepad-action-btn gamepad-action-btn--a', 'a', 'A'));
-  containerEl.appendChild(actionsEl);
-
   // Start / Select 功能键
   const funcsEl = document.createElement('div');
   funcsEl.className = 'gamepad-funcs';
   funcsEl.appendChild(createBtn('gamepad-func-btn gamepad-func-btn--select', 'select', 'SELECT'));
   funcsEl.appendChild(createBtn('gamepad-func-btn gamepad-func-btn--start', 'start', 'START'));
   containerEl.appendChild(funcsEl);
+
+  // A / B 操作按钮
+  const actionsEl = document.createElement('div');
+  actionsEl.className = 'gamepad-actions';
+  actionsEl.appendChild(createBtn('gamepad-action-btn gamepad-action-btn--b', 'b', 'B'));
+  actionsEl.appendChild(createBtn('gamepad-action-btn gamepad-action-btn--a', 'a', 'A'));
+  containerEl.appendChild(actionsEl);
 
   // ---- 触摸事件处理 ----
   function findActionFromTarget(target) {
@@ -100,6 +101,10 @@ export function createVirtualGamepad(containerEl, emulator) {
 
   containerEl.addEventListener('touchstart', (e) => {
     e.preventDefault();
+    if (!firstInteractionDone && options.onFirstInteraction) {
+      firstInteractionDone = true;
+      options.onFirstInteraction();
+    }
     for (const touch of e.changedTouches) {
       const result = findActionFromTarget(document.elementFromPoint(touch.clientX, touch.clientY));
       if (result) {

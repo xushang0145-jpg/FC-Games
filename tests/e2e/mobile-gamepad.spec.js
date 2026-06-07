@@ -62,12 +62,14 @@ test.describe('虚拟手柄 — 按钮交互', () => {
     const page = await context.newPage();
     await page.goto('/game.html?rom=超级玛莉.nes');
 
-    // 等待 ROM 加载 + 虚拟手柄显示
+    // 等待 ROM 加载 + 虚拟手柄显示（游戏直接启动，无投币按钮）
     await page.waitForFunction(() => {
-      const btn = document.getElementById('coin-btn');
       const gp = document.getElementById('virtual-gamepad');
-      return btn && btn.textContent.includes('投 币') && gp && gp.children.length > 0;
+      return gp && gp.children.length > 0;
     }, { timeout: 10000 });
+
+    // 等待几帧渲染
+    await page.waitForTimeout(1500);
 
     // 触摸 Start 按钮开始游戏
     const startBtn = page.locator('[data-action="start"]');

@@ -37,14 +37,17 @@ async function initGame(romFile) {
   emulator.init(canvasEl);
 
   // 加载当前游戏的按键配置
-  let bindings = loadBinding(romFile);
   let audioInitialized = false;
+
+  function ensureAudio() {
+    if (audioInitialized || emulator.getStatus() !== 'running') return;
+    emulator.setupAudio();
+    audioInitialized = true;
+  }
+
+  let bindings = loadBinding(romFile);
   let inputHandler = createInputHandler(emulator, bindings, {
-    onFirstInteraction: () => {
-      if (audioInitialized || emulator.getStatus() !== 'running') return;
-      emulator.setupAudio();
-      audioInitialized = true;
-    }
+    onFirstInteraction: ensureAudio
   });
 
   function updateInput() {
@@ -52,11 +55,7 @@ async function initGame(romFile) {
     document.removeEventListener('keyup', inputHandler.onKeyUp);
     if (inputHandler.destroy) inputHandler.destroy();
     inputHandler = createInputHandler(emulator, bindings, {
-      onFirstInteraction: () => {
-        if (audioInitialized || emulator.getStatus() !== 'running') return;
-        emulator.setupAudio();
-        audioInitialized = true;
-      }
+      onFirstInteraction: ensureAudio
     });
     document.addEventListener('keydown', inputHandler.onKeyDown);
     document.addEventListener('keyup', inputHandler.onKeyUp);
@@ -75,7 +74,9 @@ async function initGame(romFile) {
   // 虚拟手柄初始化（仅移动端）
   let gamepad = null;
   if (isMobileDevice() && gamepadContainer) {
-    gamepad = createVirtualGamepad(gamepadContainer, emulator);
+    gamepad = createVirtualGamepad(gamepadContainer, emulator, {
+      onFirstInteraction: ensureAudio
+    });
     gamepad.show();
   }
 
