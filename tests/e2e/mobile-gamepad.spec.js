@@ -18,7 +18,7 @@ test.describe('虚拟手柄 — 显示/隐藏', () => {
     });
     const page = await context.newPage();
     await page.goto('/game.html?rom=超级玛莉.nes');
-    await page.waitForSelector('#virtual-gamepad');
+    await page.waitForSelector('#virtual-gamepad', { state: 'attached' });
 
     const gamepad = page.locator('#virtual-gamepad');
     await expect(gamepad).not.toBeVisible();
