@@ -4,6 +4,8 @@ import { loadBinding, saveBinding, createInputHandler } from './input.js';
 import { createKeybindingUI } from './keybinding-ui.js';
 import { recordPlayHistory } from '../shared/play-history.js';
 import { trackPageView, trackGameStart, trackGameDuration, flushQueue } from '../shared/analytics.js';
+import { isMobileDevice } from '../shared/device.js';
+import { createVirtualGamepad } from './virtual-gamepad.js';
 
 // ====== DOM 引用 ======
 const canvasEl = document.getElementById('game-canvas');
@@ -16,6 +18,7 @@ const errorPanel = document.getElementById('error-panel');
 const errorMsg = document.getElementById('error-msg');
 const retryBtn = document.getElementById('retry-btn');
 const errorBackBtn = document.getElementById('error-back-btn');
+const gamepadContainer = document.getElementById('virtual-gamepad');
 
 const params = new URLSearchParams(window.location.search);
 const romFile = params.get('rom');
@@ -87,6 +90,13 @@ async function initGame(romFile) {
 
   document.addEventListener('keydown', inputHandler.onKeyDown);
   document.addEventListener('keyup', inputHandler.onKeyUp);
+
+  // 虚拟手柄初始化（仅移动端）
+  let gamepad = null;
+  if (isMobileDevice() && gamepadContainer) {
+    gamepad = createVirtualGamepad(gamepadContainer, emulator);
+    gamepad.show();
+  }
 
   // 按键设置面板
   const keybindingUI = createKeybindingUI(bindings, (newBindings) => {

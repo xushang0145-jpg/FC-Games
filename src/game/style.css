@@ -360,3 +360,14 @@ body {
   display: flex;
   gap: 10px;
 }
+
+/* 虚拟手柄可见时：Canvas 容器预留底部空间，避免游戏画面被手柄遮挡 */
+body:has(.virtual-gamepad--visible) .canvas-container {
+  padding-bottom: 160px;
+}
+
+@media (max-width: 359px) {
+  body:has(.virtual-gamepad--visible) .canvas-container {
+    padding-bottom: 130px;
+  }
+}
