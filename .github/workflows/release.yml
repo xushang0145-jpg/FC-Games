@@ -35,12 +35,21 @@ jobs:
           cd ..
           tar -czf fc-games-collection-${{ github.ref_name }}.tar.gz -C dist .
 
+      - name: Extract tag message
+        id: tag
+        run: |
+          # 获取 tag 注释作为 release notes
+          BODY=$(git tag -l --format='%(contents)' ${{ github.ref_name }})
+          # 将消息写入文件，避免换行和特殊字符问题
+          echo "$BODY" > /tmp/release-body.md
+          echo "body_file=/tmp/release-body.md" >> "$GITHUB_OUTPUT"
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
+          body_path: /tmp/release-body.md
           files: |
             fc-games-collection-${{ github.ref_name }}.zip
             fc-games-collection-${{ github.ref_name }}.tar.gz
-          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
