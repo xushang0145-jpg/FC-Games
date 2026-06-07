@@ -33,7 +33,6 @@ function getControllerButton(action) {
 export function createVirtualGamepad(containerEl, emulator, options = {}) {
   // 跟踪每个手指：Map<identifier, {btnEl, action}>
   const activeTouches = new Map();
-  let firstInteractionDone = false;
 
   // ---- 创建 DOM 按钮 ----
   function createBtn(className, action, innerHTML) {
@@ -101,8 +100,7 @@ export function createVirtualGamepad(containerEl, emulator, options = {}) {
 
   containerEl.addEventListener('touchstart', (e) => {
     e.preventDefault();
-    if (!firstInteractionDone && options.onFirstInteraction) {
-      firstInteractionDone = true;
+    if (options.onFirstInteraction) {
       options.onFirstInteraction();
     }
     for (const touch of e.changedTouches) {

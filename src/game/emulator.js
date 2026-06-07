@@ -72,10 +72,10 @@ export function createEmulator() {
   function setupAudio() {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: SAMPLE_RATE });
     audioNode = audioCtx.createScriptProcessor(BUFFER_SIZE, 0, 2);
-    audioNode.onaudioprocess = () => {
+    audioNode.onaudioprocess = (event) => {
       if (audioBuffer.length < BUFFER_SIZE * 2) return;
-      const outLeft = audioNode.outputBuffer.getChannelData(0);
-      const outRight = audioNode.outputBuffer.getChannelData(1);
+      const outLeft = event.outputBuffer.getChannelData(0);
+      const outRight = event.outputBuffer.getChannelData(1);
       const samples = audioBuffer.splice(0, BUFFER_SIZE * 2);
       for (let i = 0; i < BUFFER_SIZE; i++) {
         outLeft[i] = samples[i * 2] || 0;
@@ -83,6 +83,9 @@ export function createEmulator() {
       }
     };
     audioNode.connect(audioCtx.destination);
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
   }
 
   function loadROM(arrayBuffer) {

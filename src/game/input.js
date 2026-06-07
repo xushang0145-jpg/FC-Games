@@ -76,7 +76,6 @@ function getControllerButton(action) {
 export function createInputHandler(emulator, bindings, options = {}) {
   const codeMap = buildCodeMap(bindings);
   const turboState = {};
-  let audioInitDone = false;
 
   const TURBO_ACTIONS = { turboA: 'a', turboB: 'b' };
   const TURBO_INTERVAL = 80; // ~12.5 Hz
@@ -108,8 +107,7 @@ export function createInputHandler(emulator, bindings, options = {}) {
   }
 
   function onKeyDown(e) {
-    if (!audioInitDone && options.onFirstInteraction) {
-      audioInitDone = true;
+    if (options.onFirstInteraction) {
       options.onFirstInteraction();
     }
     if (e.repeat) return;
