@@ -1,4 +1,4 @@
-import jsnes from 'jsnes';
+
 import { createEmulator } from './emulator.js';
 import { loadBinding, saveBinding, createInputHandler } from './input.js';
 import { createKeybindingUI } from './keybinding-ui.js';
@@ -10,10 +10,7 @@ import { createVirtualGamepad } from './virtual-gamepad.js';
 // ====== DOM 引用 ======
 const canvasEl = document.getElementById('game-canvas');
 const unsupportedBanner = document.getElementById('unsupported-banner');
-const startOverlay = document.getElementById('start-overlay');
-const coinBtn = document.getElementById('coin-btn');
-const startBtn = document.getElementById('start-btn');
-const gameTitleEl = document.getElementById('game-title');
+const topbarTitle = document.getElementById('topbar-title');
 const errorPanel = document.getElementById('error-panel');
 const errorMsg = document.getElementById('error-msg');
 const retryBtn = document.getElementById('retry-btn');
@@ -41,52 +38,36 @@ async function initGame(romFile) {
 
   // 加载当前游戏的按键配置
   let bindings = loadBinding(romFile);
-  let inputHandler = createInputHandler(emulator, bindings);
+  let audioInitialized = false;
+  let inputHandler = createInputHandler(emulator, bindings, {
+    onFirstInteraction: () => {
+      if (audioInitialized || emulator.getStatus() !== 'running') return;
+      emulator.setupAudio();
+      audioInitialized = true;
+    }
+  });
 
   function updateInput() {
     document.removeEventListener('keydown', inputHandler.onKeyDown);
     document.removeEventListener('keyup', inputHandler.onKeyUp);
     if (inputHandler.destroy) inputHandler.destroy();
-    inputHandler = createInputHandler(emulator, bindings);
+    inputHandler = createInputHandler(emulator, bindings, {
+      onFirstInteraction: () => {
+        if (audioInitialized || emulator.getStatus() !== 'running') return;
+        emulator.setupAudio();
+        audioInitialized = true;
+      }
+    });
     document.addEventListener('keydown', inputHandler.onKeyDown);
     document.addEventListener('keyup', inputHandler.onKeyUp);
   }
 
   // 设置游戏标题
   const gameName = romFile.replace(/\.nes$/i, '');
-  gameTitleEl.textContent = gameName;
   document.title = `${gameName} - FC 游戏`;
+  if (topbarTitle) topbarTitle.textContent = gameName;
 
-  // 先注册 UI 事件监听器（避免 ROM 加载期间用户点击无响应）
-  let coinInserted = false;
-  let romLoaded = false;
   let gameStartTime = null;
-
-  coinBtn.addEventListener('click', () => {
-    if (!romLoaded) return;
-    coinInserted = true;
-    startBtn.disabled = false;
-    startBtn.textContent = '▶ 开 始 (Start) - 已投币';
-    coinBtn.textContent = '🪙 已投币 (Select)';
-  });
-
-  startBtn.addEventListener('click', () => {
-    if (!coinInserted || !romLoaded) return;
-    startOverlay.classList.add('start-overlay--hidden');
-    emulator.setupAudio();
-    emulator.start();
-    recordPlayHistory(romFile);
-    gameStartTime = Date.now();
-    trackGameStart(gameName);
-    // 投币 + 开始：向模拟器发送 Select 再 Start
-    const ctrl = jsnes.Controller;
-    emulator.buttonDown(1, ctrl.BUTTON_SELECT);
-    setTimeout(() => {
-      emulator.buttonUp(1, ctrl.BUTTON_SELECT);
-      emulator.buttonDown(1, ctrl.BUTTON_START);
-      setTimeout(() => emulator.buttonUp(1, ctrl.BUTTON_START), 50);
-    }, 50);
-  });
 
   document.addEventListener('keydown', inputHandler.onKeyDown);
   document.addEventListener('keyup', inputHandler.onKeyUp);
@@ -133,10 +114,6 @@ async function initGame(romFile) {
     emulator.stop();
   });
 
-  // 显示 ROM 加载中状态
-  coinBtn.textContent = '⏳ 加载中...';
-  coinBtn.style.pointerEvents = 'none';
-
   // 加载 ROM
   const romUrl = `/roms/${encodeURIComponent(romFile)}`;
   try {
@@ -149,16 +126,16 @@ async function initGame(romFile) {
       throw new Error('不支持的 ROM 格式');
     }
     emulator.loadROM(romData);
-    romLoaded = true;
-    coinBtn.textContent = '🪙 投 币 (Select)';
-    coinBtn.style.pointerEvents = '';
+    emulator.start();
+    recordPlayHistory(romFile);
+    gameStartTime = Date.now();
+    trackGameStart(gameName);
   } catch {
     showError(`游戏"${gameName}"加载失败。可能文件已损坏或网络错误。`, true);
   }
 }
 
 function showError(msg, showRetry) {
-  startOverlay.classList.add('start-overlay--hidden');
   errorPanel.classList.add('error-overlay--visible');
   errorMsg.textContent = msg;
 

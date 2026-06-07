@@ -188,7 +188,7 @@ export function createDetailModal() {
 
     // 开始游戏
     function openGame() {
-      window.open('/game.html?rom=' + encodeURIComponent(game.id), '_blank');
+      window.location.href = '/game.html?rom=' + encodeURIComponent(game.id);
     }
     dom.startBtn.addEventListener('click', function onStartClick(e) {
       e.preventDefault();

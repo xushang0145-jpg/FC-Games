@@ -73,9 +73,10 @@ function getControllerButton(action) {
 /**
  * 为当前按键映射创建 keydown/keyup 事件监听器
  */
-export function createInputHandler(emulator, bindings) {
+export function createInputHandler(emulator, bindings, options = {}) {
   const codeMap = buildCodeMap(bindings);
   const turboState = {};
+  let audioInitDone = false;
 
   const TURBO_ACTIONS = { turboA: 'a', turboB: 'b' };
   const TURBO_INTERVAL = 80; // ~12.5 Hz
@@ -107,6 +108,10 @@ export function createInputHandler(emulator, bindings) {
   }
 
   function onKeyDown(e) {
+    if (!audioInitDone && options.onFirstInteraction) {
+      audioInitDone = true;
+      options.onFirstInteraction();
+    }
     if (e.repeat) return;
     const action = codeMap[e.code];
     if (!action) return;

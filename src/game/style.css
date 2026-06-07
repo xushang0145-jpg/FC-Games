@@ -67,6 +67,17 @@ body {
 
 .topbar__keybind-btn:hover { border-color: var(--accent-gold); }
 
+.topbar__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-right: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 240px;
+}
+
 /* Canvas 容器 */
 .canvas-container {
   display: flex;
@@ -82,91 +93,6 @@ body {
   image-rendering: crisp-edges;
   border: 2px solid #333;
   box-shadow: 0 0 40px rgba(0,0,0,0.6);
-}
-
-/* 启动确认浮层 */
-.start-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(5, 5, 18, 0.85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 200;
-  backdrop-filter: blur(4px);
-}
-
-.start-overlay--hidden { display: none; }
-
-.start-panel {
-  background: var(--panel-bg);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 40px 48px;
-  text-align: center;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
-  min-width: 320px;
-}
-
-.start-panel__title {
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-
-.start-panel__subtitle {
-  font-size: 13px;
-  color: var(--text-dim);
-  margin-bottom: 32px;
-}
-
-.start-panel__steps {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.btn {
-  display: block;
-  width: 100%;
-  padding: 14px 24px;
-  border: none;
-  border-radius: 10px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.1s, box-shadow 0.2s;
-  font-family: inherit;
-}
-
-.btn:active { transform: scale(0.97); }
-
-.btn--coin {
-  background: linear-gradient(135deg, var(--accent-gold), #b8860b);
-  color: #1a1a00;
-  box-shadow: 0 4px 16px rgba(212, 160, 23, 0.3);
-}
-
-.btn--coin:hover { box-shadow: 0 6px 24px rgba(212, 160, 23, 0.4); }
-
-.btn--start {
-  background: linear-gradient(135deg, var(--accent), #b0000d);
-  color: #fff;
-  box-shadow: 0 4px 16px rgba(228, 0, 15, 0.3);
-}
-
-.btn--start:hover:not(:disabled) { box-shadow: 0 6px 24px rgba(228, 0, 15, 0.4); }
-
-.btn--start:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.start-panel__hint {
-  margin-top: 20px;
-  font-size: 12px;
-  color: var(--text-dim);
 }
 
 /* 错误面板 */

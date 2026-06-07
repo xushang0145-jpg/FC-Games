@@ -91,8 +91,6 @@ export function createEmulator() {
   }
 
   function start() {
-    if (!audioCtx) setupAudio();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
     status = 'running';
     runFrame();
   }

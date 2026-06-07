@@ -114,88 +114,6 @@
   .canvas-placeholder__icon { font-size: 64px; margin-bottom: 12px; }
   .canvas-placeholder__text { font-size: 14px; }
 
-  /* ====== 启动确认面板 ====== */
-  .start-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(5, 5, 18, 0.85);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 300;
-    backdrop-filter: blur(4px);
-  }
-
-  .start-panel {
-    background: var(--panel-bg);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 40px 48px;
-    text-align: center;
-    box-shadow: var(--shadow);
-    min-width: 340px;
-  }
-
-  .start-panel__title {
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 6px;
-  }
-
-  .start-panel__subtitle {
-    font-size: 13px;
-    color: var(--text-dim);
-    margin-bottom: 32px;
-  }
-
-  .start-panel__steps {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .btn {
-    display: block;
-    width: 100%;
-    padding: 14px 24px;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.1s, box-shadow 0.2s, opacity 0.2s;
-  }
-
-  .btn:active { transform: scale(0.97); }
-
-  .btn--coin {
-    background: linear-gradient(135deg, var(--accent-gold), #b8860b);
-    color: #1a1a00;
-    box-shadow: 0 4px 16px rgba(212, 160, 23, 0.3);
-  }
-
-  .btn--coin:hover { box-shadow: 0 6px 24px rgba(212, 160, 23, 0.45); }
-
-  .btn--start {
-    background: linear-gradient(135deg, var(--accent), #b0000d);
-    color: #fff;
-    box-shadow: 0 4px 16px rgba(228, 0, 15, 0.3);
-  }
-
-  .btn--start:hover { box-shadow: 0 6px 24px rgba(228, 0, 15, 0.45); }
-
-  .btn--start:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
-
-  .start-panel__hint {
-    margin-top: 20px;
-    font-size: 12px;
-    color: var(--text-dim);
-  }
-
   /* ====== 按键设置侧面板 ====== */
   .keybind-panel {
     position: fixed;
@@ -356,19 +274,6 @@
       <div class="canvas-placeholder__text">NES 游戏画面</div>
       <div class="canvas-placeholder__text" style="margin-top:4px; color:#333;">256 × 240 → Canvas</div>
     </div>
-  </div>
-</div>
-
-<!-- ====== 启动确认浮层 ====== -->
-<div class="start-overlay" id="start-overlay">
-  <div class="start-panel">
-    <div class="start-panel__title">🕹️ 超级玛莉</div>
-    <div class="start-panel__subtitle">经典 FC 游戏 · NES 模拟器</div>
-    <div class="start-panel__steps">
-      <button class="btn btn--coin">🪙 投 币 (Select)</button>
-      <button class="btn btn--start">▶ 开 始 (Start)</button>
-    </div>
-    <div class="start-panel__hint">提示：投币后点击"开始"启动游戏<br>可按 ESC 键返回此界面</div>
   </div>
 </div>
 
