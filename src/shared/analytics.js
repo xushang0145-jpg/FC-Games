@@ -26,8 +26,24 @@ export const supabase = hasCredentials
   ? createClient(supabaseUrl, supabaseKey)
   : null;
 
+/**
+ * 生成 UUID v4，兼容非安全上下文（如通过 IP 访问）
+ * crypto.randomUUID() 仅限 HTTPS / localhost，回退到 crypto.getRandomValues()
+ */
+function generateUUID() {
+  if (typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  const arr = crypto.getRandomValues(new Uint8Array(16));
+  arr[6] = (arr[6] & 0x0f) | 0x40;
+  arr[8] = (arr[8] & 0x3f) | 0x80;
+  const hex = Array.from(arr, (b) => b.toString(16).padStart(2, '0'));
+  return hex.slice(0, 4).join('') + '-' + hex[4] + hex[5] + '-' + hex[6] + hex[7] + '-' +
+    hex[8] + hex[9] + '-' + hex.slice(10).join('');
+}
+
 // 每次页面加载生成新的 session_id
-const sessionId = crypto.randomUUID();
+const sessionId = generateUUID();
 
 /**
  * 获取当前会话 ID

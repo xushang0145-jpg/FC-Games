@@ -24,3 +24,12 @@ export function detectDeviceType() {
   if (width >= 768) return 'tablet';
   return 'mobile';
 }
+
+/**
+ * 检测是否为移动端（含平板），供虚拟手柄显示判断使用
+ * 桌面端返回 false，移动端和平板返回 true
+ * @returns {boolean}
+ */
+export function isMobileDevice() {
+  return detectDeviceType() !== 'desktop';
+}
