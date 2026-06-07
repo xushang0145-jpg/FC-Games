@@ -17,8 +17,8 @@ const ACTION_LABELS = {
 };
 
 const DEFAULT_BINDINGS = {
-  up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight',
-  a: 'KeyZ', b: 'KeyX', start: 'Enter', select: 'ShiftRight',
+  up: 'KeyW', down: 'KeyS', left: 'KeyA', right: 'KeyD',
+  a: 'KeyK', b: 'KeyJ', start: 'Digit1', select: 'Digit2',
 };
 
 function formatKeyCode(code) {

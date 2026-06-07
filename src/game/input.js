@@ -14,8 +14,8 @@ export const DEFAULT_BINDINGS = {
   b: 'KeyJ',
   turboA: 'KeyI',
   turboB: 'KeyU',
-  start: 'Digit2',
-  select: 'Digit1',
+  start: 'Digit1',
+  select: 'Digit2',
 };
 
 export const ACTION_LABELS = {
