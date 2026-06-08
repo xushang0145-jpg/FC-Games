@@ -100,9 +100,9 @@ export function createVirtualGamepad(containerEl, emulator, options = {}) {
 
   containerEl.addEventListener('touchstart', (e) => {
     e.preventDefault();
-    if (options.onFirstInteraction) {
-      options.onFirstInteraction();
-    }
+    // 不在 touchstart 中触发音频初始化
+    // iOS Safari 不将 touchstart 视为用户激活事件，AudioContext 创建会失败
+    // 音频初始化统一在 touchend 中触发（各平台均支持）
     for (const touch of e.changedTouches) {
       const result = findActionFromTarget(document.elementFromPoint(touch.clientX, touch.clientY));
       if (result) {
@@ -153,6 +153,9 @@ export function createVirtualGamepad(containerEl, emulator, options = {}) {
 
   containerEl.addEventListener('touchend', (e) => {
     e.preventDefault();
+    if (options.onFirstInteraction) {
+      options.onFirstInteraction();
+    }
     for (const touch of e.changedTouches) {
       const current = activeTouches.get(touch.identifier);
       if (current) {

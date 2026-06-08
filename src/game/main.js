@@ -37,12 +37,9 @@ async function initGame(romFile) {
   emulator.init(canvasEl);
 
   // 加载当前游戏的按键配置
-  let audioInitialized = false;
-
   function ensureAudio() {
-    if (audioInitialized || emulator.getStatus() !== 'running') return;
+    if (emulator.getStatus() !== 'running') return;
     emulator.setupAudio();
-    audioInitialized = true;
   }
 
   let bindings = loadBinding(romFile);
@@ -79,6 +76,11 @@ async function initGame(romFile) {
     });
     gamepad.show();
   }
+
+  // Canvas 触摸触发音频初始化（touchend 在 iOS/Android 均为有效用户激活事件）
+  canvasEl.addEventListener('touchend', () => {
+    ensureAudio();
+  }, { passive: true });
 
   // 按键设置面板
   const keybindingUI = createKeybindingUI(bindings, (newBindings) => {

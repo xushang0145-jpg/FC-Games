@@ -5,6 +5,9 @@ import jsnes from 'jsnes';
 
 const SAMPLE_RATE = 44100;
 const BUFFER_SIZE = 4096;
+const RING_SIZE = 16384;              // 环形缓冲区大小（2 的幂）
+const RING_MASK = RING_SIZE - 1;
+const AUDIO_TARGET = 1024;            // 音频回调中保持的目标缓冲样本数
 
 /** ArrayBuffer → 二进制字符串（分块避免栈溢出） */
 function arrayBufferToBinaryString(buf) {
@@ -35,10 +38,19 @@ export function createEmulator() {
   let canvasCtx = null;
   let audioCtx = null;
   let frameId = null;
-  let audioBuffer = [];
   let audioNode = null;
   let status = 'idle';
   let img = null;
+
+  // 环形缓冲区（参照 jsnes 官方示例 nes-embed.js）
+  let ringL = new Float32Array(RING_SIZE);
+  let ringR = new Float32Array(RING_SIZE);
+  let writePos = 0;
+  let readPos = 0;
+
+  function ringRemain() {
+    return (writePos - readPos) & RING_MASK;
+  }
 
   function init(canvasEl) {
     canvas = canvasEl;
@@ -62,7 +74,9 @@ export function createEmulator() {
         canvasCtx.putImageData(img, 0, 0);
       },
       onAudioSample(left, right) {
-        audioBuffer.push(left, right);
+        ringL[writePos] = left;
+        ringR[writePos] = right;
+        writePos = (writePos + 1) & RING_MASK;
       },
     });
 
@@ -70,21 +84,43 @@ export function createEmulator() {
   }
 
   function setupAudio() {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: SAMPLE_RATE });
-    audioNode = audioCtx.createScriptProcessor(BUFFER_SIZE, 0, 2);
-    audioNode.onaudioprocess = (event) => {
-      if (audioBuffer.length < BUFFER_SIZE * 2) return;
-      const outLeft = event.outputBuffer.getChannelData(0);
-      const outRight = event.outputBuffer.getChannelData(1);
-      const samples = audioBuffer.splice(0, BUFFER_SIZE * 2);
-      for (let i = 0; i < BUFFER_SIZE; i++) {
-        outLeft[i] = samples[i * 2] || 0;
-        outRight[i] = samples[i * 2 + 1] || 0;
-      }
-    };
-    audioNode.connect(audioCtx.destination);
+    // 在用户交互上下文中创建 AudioContext（同步执行，确保 running 状态）
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: SAMPLE_RATE });
+    }
+    if (!audioNode) {
+      audioNode = audioCtx.createScriptProcessor(BUFFER_SIZE, 0, 2);
+      audioNode.onaudioprocess = (event) => {
+        // 缓冲区低水位时从音频线程驱动帧生成，防止欠载（参照 jsnes 官方示例）
+        if (ringRemain() < AUDIO_TARGET && status === 'running') {
+          try {
+            nes.frame();
+          } catch (e) {
+            // 帧生成失败时忽略，避免音频回调中抛出异常
+          }
+        }
+        const outLeft = event.outputBuffer.getChannelData(0);
+        const outRight = event.outputBuffer.getChannelData(1);
+        for (let i = 0; i < BUFFER_SIZE; i++) {
+          if (ringRemain() > 0) {
+            outLeft[i] = ringL[readPos];
+            outRight[i] = ringR[readPos];
+            readPos = (readPos + 1) & RING_MASK;
+          } else {
+            outLeft[i] = 0;
+            outRight[i] = 0;
+          }
+        }
+      };
+      audioNode.connect(audioCtx.destination);
+    }
+    // 若 AudioContext 仍为 suspended，尝试恢复（兼容某些非标准手势场景）
     if (audioCtx.state === 'suspended') {
-      audioCtx.resume();
+      audioCtx.resume().then(() => {
+        console.log('AudioContext 已恢复运行');
+      }).catch((err) => {
+        console.warn('AudioContext.resume() 失败:', err.message);
+      });
     }
   }
 
@@ -114,11 +150,8 @@ export function createEmulator() {
     status = 'stopped';
     if (frameId) { cancelAnimationFrame(frameId); frameId = null; }
     if (audioNode) { audioNode.disconnect(); audioNode = null; }
-    if (audioCtx && audioCtx.state !== 'closed') {
-      audioCtx.close().catch(() => {});
-      audioCtx = null;
-    }
-    audioBuffer = [];
+    // 不关闭 AudioContext，保持实例复用
+    // 环形缓冲区不需要清理（旧数据自然被新数据覆盖）
   }
 
   // buttonDown/Up 仅在 status==='loaded' 或 'running' 时有效
