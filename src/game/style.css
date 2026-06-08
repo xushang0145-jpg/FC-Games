@@ -292,6 +292,31 @@ body:has(.virtual-gamepad--visible) .canvas-container {
   padding-bottom: 160px;
 }
 
+/* 移动端虚拟手柄可见时：精简顶栏，隐藏多余元素 */
+body:has(.virtual-gamepad--visible) .topbar {
+  height: 32px;
+  padding: 0 10px;
+  justify-content: flex-start;
+}
+
+body:has(.virtual-gamepad--visible) .topbar__title {
+  display: none;
+}
+
+body:has(.virtual-gamepad--visible) .topbar__keybind-btn {
+  display: none;
+}
+
+body:has(.virtual-gamepad--visible) .topbar__spacer {
+  display: none;
+}
+
+body:has(.virtual-gamepad--visible) .topbar__back {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 4px;
+}
+
 @media (max-width: 359px) {
   body:has(.virtual-gamepad--visible) .canvas-container {
     padding-bottom: 130px;

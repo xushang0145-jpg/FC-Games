@@ -4,79 +4,177 @@
  */
 import jsnes from 'jsnes';
 
-const TOUCH_TOLERANCE = 20; // 触摸容差像素
+const TOUCH_TOLERANCE = 20;
+const HOLD_ZONE_RADIUS = 6;     // 圆形方向键中心保持区半径
+const ANGLE_TOLERANCE = 12;     // 方向角度容差带
 
-/**
- * 虚拟按键到 jsnes Controller 常量的映射
- * 与 input.js 中 getControllerButton 保持一致
- */
-function getControllerButton(action) {
+function getControllerButtons(action) {
   const ctrl = jsnes.Controller;
-  return {
-    up: ctrl.BUTTON_UP,
-    down: ctrl.BUTTON_DOWN,
-    left: ctrl.BUTTON_LEFT,
-    right: ctrl.BUTTON_RIGHT,
-    a: ctrl.BUTTON_A,
-    b: ctrl.BUTTON_B,
-    start: ctrl.BUTTON_START,
-    select: ctrl.BUTTON_SELECT,
-  }[action];
+  const map = {
+    up: [ctrl.BUTTON_UP],
+    down: [ctrl.BUTTON_DOWN],
+    left: [ctrl.BUTTON_LEFT],
+    right: [ctrl.BUTTON_RIGHT],
+    a: [ctrl.BUTTON_A],
+    b: [ctrl.BUTTON_B],
+    start: [ctrl.BUTTON_START],
+    select: [ctrl.BUTTON_SELECT],
+  };
+  return map[action] || [];
 }
 
-/**
- * 创建虚拟手柄
- * @param {HTMLElement} containerEl - 虚拟手柄容器元素
- * @param {object} emulator - jsnes 模拟器实例（需暴露 buttonDown/buttonUp 方法）
- * @returns {object} 手柄控制接口
- */
-export function createVirtualGamepad(containerEl, emulator, options = {}) {
-  // 跟踪每个手指：Map<identifier, {btnEl, action}>
-  const activeTouches = new Map();
+function computeDirectionFromAngle(angle, distance, radius) {
+  if (distance > radius + TOUCH_TOLERANCE) return null;
+  if (distance < HOLD_ZONE_RADIUS) return { dir: null, actions: [], isHold: true };
 
-  // ---- 创建 DOM 按钮 ----
+  let deg = angle * (180 / Math.PI);
+  if (deg < 0) deg += 360;
+
+  const sectors = [
+    { dir: 'e',  center: 0,   actions: ['right'] },
+    { dir: 'se', center: 45,  actions: ['down', 'right'] },
+    { dir: 's',  center: 90,  actions: ['down'] },
+    { dir: 'sw', center: 135, actions: ['down', 'left'] },
+    { dir: 'w',  center: 180, actions: ['left'] },
+    { dir: 'nw', center: 225, actions: ['up', 'left'] },
+    { dir: 'n',  center: 270, actions: ['up'] },
+    { dir: 'ne', center: 315, actions: ['up', 'right'] },
+  ];
+
+  for (const s of sectors) {
+    let diff = Math.abs(deg - s.center);
+    if (diff > 180) diff = 360 - diff;
+    const tol = (s.center % 90 === 0) ? ANGLE_TOLERANCE + 10 : ANGLE_TOLERANCE;
+    if (diff <= tol) return { dir: s.dir, actions: s.actions, isHold: false };
+  }
+
+  let best = sectors[0];
+  let bestDiff = 360;
+  for (const s of sectors) {
+    let diff = Math.abs(deg - s.center);
+    if (diff > 180) diff = 360 - diff;
+    if (diff < bestDiff) { bestDiff = diff; best = s; }
+  }
+  return { dir: best.dir, actions: best.actions, isHold: false };
+}
+
+export function createVirtualGamepad(containerEl, emulator, options = {}) {
+  const activeTouches = new Map();
+  let currentDpadActions = [];
+
   function createBtn(className, action, innerHTML) {
     const el = document.createElement('div');
     el.className = className;
-    el.setAttribute('data-action', action);
+    if (action) el.setAttribute('data-action', action);
     el.innerHTML = innerHTML || '';
     return el;
   }
 
-  // 方向键容器
-  const dpadEl = document.createElement('div');
-  dpadEl.className = 'gamepad-dpad';
-  dpadEl.appendChild(createBtn('gamepad-dpad__btn gamepad-dpad__btn--up', 'up',
-    '<span class="gamepad-dpad__arrow">▲</span>'));
-  dpadEl.appendChild(createBtn('gamepad-dpad__btn gamepad-dpad__btn--down', 'down',
-    '<span class="gamepad-dpad__arrow">▼</span>'));
-  dpadEl.appendChild(createBtn('gamepad-dpad__btn gamepad-dpad__btn--left', 'left',
-    '<span class="gamepad-dpad__arrow">◀</span>'));
-  dpadEl.appendChild(createBtn('gamepad-dpad__btn gamepad-dpad__btn--right', 'right',
-    '<span class="gamepad-dpad__arrow">▶</span>'));
-  const dpadCenter = document.createElement('div');
-  dpadCenter.className = 'gamepad-dpad__center';
-  dpadEl.appendChild(dpadCenter);
+  function pressButtons(el, actions) {
+    for (const action of actions) for (const btn of getControllerButtons(action)) emulator.buttonDown(1, btn);
+    if (el) el.classList.add('gamepad-btn--pressed');
+  }
+
+  function releaseButtons(el, actions) {
+    for (const action of actions) for (const btn of getControllerButtons(action)) emulator.buttonUp(1, btn);
+    if (el) el.classList.remove('gamepad-btn--pressed');
+  }
+
+  // ---- 圆形方向键 DOM ----
+  function buildRadialDpad() {
+    const el = document.createElement('div');
+    el.className = 'gamepad-dpad-radial';
+    const base = document.createElement('div');
+    base.className = 'dpad-radial__base';
+    el.appendChild(base);
+    for (const a of ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw']) {
+      const arrow = document.createElement('span');
+      arrow.className = `dpad-radial__arrow dpad-r--${a}`;
+      el.appendChild(arrow);
+    }
+    const center = document.createElement('div');
+    center.className = 'dpad-radial__center';
+    center.innerHTML = '<div class="dpad-radial__center-dot"></div>';
+    el.appendChild(center);
+    return el;
+  }
+
+  // ---- A/B 按钮 DOM（横向：B 左 A 右） ----
+  function buildActions() {
+    const row = document.createElement('div');
+    row.className = 'gamepad-actions';
+    row.appendChild(createBtn('gamepad-action-btn gamepad-action-btn--b', 'b', 'B'));
+    row.appendChild(createBtn('gamepad-action-btn gamepad-action-btn--a', 'a', 'A'));
+    return row;
+  }
+
+  // ---- Select/Start ----
+  function buildFuncs() {
+    const el = document.createElement('div');
+    el.className = 'gamepad-funcs';
+    el.appendChild(createBtn('gamepad-func-btn gamepad-func-btn--select', 'select', 'SELECT'));
+    el.appendChild(createBtn('gamepad-func-btn gamepad-func-btn--start', 'start', 'START'));
+    return el;
+  }
+
+  const dpadEl = buildRadialDpad();
+  const actionsEl = buildActions();
+  const funcsEl = buildFuncs();
   containerEl.appendChild(dpadEl);
-
-  // Start / Select 功能键
-  const funcsEl = document.createElement('div');
-  funcsEl.className = 'gamepad-funcs';
-  funcsEl.appendChild(createBtn('gamepad-func-btn gamepad-func-btn--select', 'select', 'SELECT'));
-  funcsEl.appendChild(createBtn('gamepad-func-btn gamepad-func-btn--start', 'start', 'START'));
   containerEl.appendChild(funcsEl);
-
-  // A / B 操作按钮
-  const actionsEl = document.createElement('div');
-  actionsEl.className = 'gamepad-actions';
-  actionsEl.appendChild(createBtn('gamepad-action-btn gamepad-action-btn--b', 'b', 'B'));
-  actionsEl.appendChild(createBtn('gamepad-action-btn gamepad-action-btn--a', 'a', 'A'));
   containerEl.appendChild(actionsEl);
 
-  // ---- 触摸事件处理 ----
+  // ---- 圆形方向键触摸 ----
+  function getDpadInfo(touch) {
+    const rect = dpadEl.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const radius = rect.width / 2;
+    const dx = touch.clientX - cx;
+    const dy = touch.clientY - cy;
+    return { cx, cy, radius, dx, dy, dist: Math.sqrt(dx * dx + dy * dy) };
+  }
+
+  function isTouchOnDpad(touch) {
+    const info = getDpadInfo(touch);
+    return info.dist <= info.radius + TOUCH_TOLERANCE;
+  }
+
+  function handleDpadTouch(touch) {
+    const info = getDpadInfo(touch);
+    const angle = Math.atan2(-info.dy, info.dx);
+    const result = computeDirectionFromAngle(angle, info.dist, info.radius);
+
+    if (!result) {
+      if (currentDpadActions.length > 0) {
+        releaseButtons(null, currentDpadActions);
+        currentDpadActions = [];
+        dpadEl.classList.remove('dpad-radial--pressed');
+      }
+      return;
+    }
+    if (result.isHold) return;
+
+    const newActions = result.actions;
+    const oldActions = currentDpadActions;
+    for (const a of oldActions) if (!newActions.includes(a)) for (const btn of getControllerButtons(a)) emulator.buttonUp(1, btn);
+    for (const a of newActions) if (!oldActions.includes(a)) for (const btn of getControllerButtons(a)) emulator.buttonDown(1, btn);
+    currentDpadActions = newActions;
+    if (newActions.length > 0) dpadEl.classList.add('dpad-radial--pressed');
+  }
+
+  function releaseDpad() {
+    if (currentDpadActions.length > 0) {
+      releaseButtons(null, currentDpadActions);
+      currentDpadActions = [];
+      dpadEl.classList.remove('dpad-radial--pressed');
+    }
+  }
+
+  // ---- 通用触摸 ----
   function findActionFromTarget(target) {
     let el = target;
-    while (el && el !== containerEl) {
+    while (el && el !== containerEl && el !== document.body) {
       const action = el.getAttribute('data-action');
       if (action) return { el, action };
       el = el.parentElement;
@@ -84,30 +182,19 @@ export function createVirtualGamepad(containerEl, emulator, options = {}) {
     return null;
   }
 
-  function pressBtn(el, action) {
-    const btn = getControllerButton(action);
-    if (btn === undefined) return;
-    el.classList.add('gamepad-btn--pressed');
-    emulator.buttonDown(1, btn);
-  }
-
-  function releaseBtn(el, action) {
-    const btn = getControllerButton(action);
-    if (btn === undefined) return;
-    el.classList.remove('gamepad-btn--pressed');
-    emulator.buttonUp(1, btn);
-  }
-
   containerEl.addEventListener('touchstart', (e) => {
     e.preventDefault();
-    // 不在 touchstart 中触发音频初始化
-    // iOS Safari 不将 touchstart 视为用户激活事件，AudioContext 创建会失败
-    // 音频初始化统一在 touchend 中触发（各平台均支持）
     for (const touch of e.changedTouches) {
-      const result = findActionFromTarget(document.elementFromPoint(touch.clientX, touch.clientY));
+      if (isTouchOnDpad(touch)) {
+        handleDpadTouch(touch);
+        activeTouches.set(touch.identifier, { type: 'dpad' });
+        continue;
+      }
+      const elAtPoint = document.elementFromPoint(touch.clientX, touch.clientY);
+      const result = findActionFromTarget(elAtPoint);
       if (result) {
-        pressBtn(result.el, result.action);
-        activeTouches.set(touch.identifier, result);
+        pressButtons(result.el, [result.action]);
+        activeTouches.set(touch.identifier, { type: 'btn', action: result.action, el: result.el });
       }
     }
   }, { passive: false });
@@ -115,36 +202,27 @@ export function createVirtualGamepad(containerEl, emulator, options = {}) {
   containerEl.addEventListener('touchmove', (e) => {
     e.preventDefault();
     for (const touch of e.changedTouches) {
-      const current = activeTouches.get(touch.identifier);
-      if (!current) continue;
+      const cur = activeTouches.get(touch.identifier);
+      if (!cur) continue;
+      if (cur.type === 'dpad') { handleDpadTouch(touch); continue; }
 
       const elAtPoint = document.elementFromPoint(touch.clientX, touch.clientY);
       const newResult = findActionFromTarget(elAtPoint);
+      if (newResult && newResult.action === cur.action && newResult.el === cur.el) continue;
 
-      if (newResult && newResult.action === current.action && newResult.el === current.el) {
-        // 手指仍在原按钮内（或容差范围内），保持按下
-        continue;
-      }
-
-      if (newResult && newResult.action !== current.action) {
-        // 手指滑到另一个按钮：释放旧按钮，按下新按钮
-        releaseBtn(current.el, current.action);
+      if (newResult && newResult.action !== cur.action) {
+        releaseButtons(cur.el, [cur.action]);
         activeTouches.delete(touch.identifier);
-        pressBtn(newResult.el, newResult.action);
-        activeTouches.set(touch.identifier, newResult);
+        pressButtons(newResult.el, [newResult.action]);
+        activeTouches.set(touch.identifier, { type: 'btn', action: newResult.action, el: newResult.el });
         continue;
       }
 
-      // 手指滑出所有按钮区域：检查是否在容差范围内
-      if (current.el) {
-        const rect = current.el.getBoundingClientRect();
-        const inTolerance =
-          touch.clientX >= rect.left - TOUCH_TOLERANCE &&
-          touch.clientX <= rect.right + TOUCH_TOLERANCE &&
-          touch.clientY >= rect.top - TOUCH_TOLERANCE &&
-          touch.clientY <= rect.bottom + TOUCH_TOLERANCE;
-        if (!inTolerance) {
-          releaseBtn(current.el, current.action);
+      if (cur.el) {
+        const rect = cur.el.getBoundingClientRect();
+        if (!(touch.clientX >= rect.left - TOUCH_TOLERANCE && touch.clientX <= rect.right + TOUCH_TOLERANCE &&
+              touch.clientY >= rect.top - TOUCH_TOLERANCE && touch.clientY <= rect.bottom + TOUCH_TOLERANCE)) {
+          releaseButtons(cur.el, [cur.action]);
           activeTouches.delete(touch.identifier);
         }
       }
@@ -153,50 +231,25 @@ export function createVirtualGamepad(containerEl, emulator, options = {}) {
 
   containerEl.addEventListener('touchend', (e) => {
     e.preventDefault();
-    if (options.onFirstInteraction) {
-      options.onFirstInteraction();
-    }
+    if (options.onFirstInteraction) options.onFirstInteraction();
     for (const touch of e.changedTouches) {
-      const current = activeTouches.get(touch.identifier);
-      if (current) {
-        releaseBtn(current.el, current.action);
-        activeTouches.delete(touch.identifier);
-      }
+      const cur = activeTouches.get(touch.identifier);
+      if (!cur) continue;
+      if (cur.type === 'dpad') releaseDpad();
+      else releaseButtons(cur.el, [cur.action]);
+      activeTouches.delete(touch.identifier);
     }
   }, { passive: false });
 
-  containerEl.addEventListener('touchcancel', (e) => {
-    for (const touch of e.changedTouches) {
-      const current = activeTouches.get(touch.identifier);
-      if (current) {
-        releaseBtn(current.el, current.action);
-        activeTouches.delete(touch.identifier);
-      }
-    }
+  containerEl.addEventListener('touchcancel', () => {
+    releaseDpad();
+    for (const [, cur] of activeTouches) if (cur.type === 'btn') releaseButtons(cur.el, [cur.action]);
+    activeTouches.clear();
   }, { passive: false });
 
-  // 横竖屏切换自适应：CSS 媒体查询处理视觉布局，此处仅作状态同步
-  window.addEventListener('orientationchange', () => {
-    // 延迟一帧等待 CSS 媒体查询生效，确保触摸热区与视觉布局一致
-    requestAnimationFrame(() => {
-      // 清除所有活跃触摸状态（屏幕旋转后触摸上下文失效）
-      for (const [, current] of activeTouches) {
-        releaseBtn(current.el, current.action);
-      }
-      activeTouches.clear();
-    });
-  });
-
-  // ---- 返回控制接口 ----
   return {
-    show() {
-      containerEl.classList.add('virtual-gamepad--visible');
-    },
-    hide() {
-      containerEl.classList.remove('virtual-gamepad--visible');
-    },
-    isVisible() {
-      return containerEl.classList.contains('virtual-gamepad--visible');
-    },
+    show() { containerEl.classList.add('virtual-gamepad--visible'); },
+    hide() { containerEl.classList.remove('virtual-gamepad--visible'); },
+    isVisible() { return containerEl.classList.contains('virtual-gamepad--visible'); },
   };
 }

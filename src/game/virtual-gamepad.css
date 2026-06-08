@@ -1,8 +1,6 @@
 /**
- * 虚拟手柄样式
- * 移动端触摸控制 UI 层
+ * 虚拟手柄样式 — 竖版底部栏
  */
-
 .virtual-gamepad {
   position: fixed;
   bottom: 0;
@@ -22,92 +20,124 @@
   user-select: none;
 }
 
-/* 横屏布局 */
 @media (orientation: landscape) {
-  .virtual-gamepad {
-    padding: 8px 20px 12px;
-  }
+  .virtual-gamepad { padding: 8px 20px 12px; }
 }
 
-/* 竖屏布局：按钮稍紧凑 */
 @media (orientation: portrait) {
-  .virtual-gamepad {
-    padding: 10px 10px 18px;
-  }
+  .virtual-gamepad { padding: 10px 10px 18px; }
 }
 
-/* ====== 方向键（十字键） ====== */
-.gamepad-dpad {
+/* ====== 圆形方向键 ====== */
+.gamepad-dpad-radial {
   position: relative;
-  width: 130px;
-  height: 130px;
+  width: 100px;
+  height: 100px;
   flex-shrink: 0;
 }
 
-.gamepad-dpad__btn {
+.dpad-radial__base {
   position: absolute;
-  background: #1a1a38;
-  border: 1px solid #3a3a60;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, #14142a 0%, #1a1a38 60%, #12122a 100%);
+  border: 2px solid #2e2e52;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.4), 0 2px 12px rgba(0,0,0,0.3);
+  transition: border-color 0.08s, box-shadow 0.08s;
+}
+
+.dpad-radial__arrow {
+  position: absolute;
+  font-size: 14px;
+  color: #5a5a80;
+  pointer-events: none;
+  transition: color 0.08s, text-shadow 0.08s;
+}
+
+.dpad-r--n  { left: 50%; top: 6px;  transform: translateX(-50%); }
+.dpad-r--s  { left: 50%; bottom: 6px; transform: translateX(-50%); }
+.dpad-r--w  { top: 50%; left: 6px;  transform: translateY(-50%); }
+.dpad-r--e  { top: 50%; right: 6px; transform: translateY(-50%); }
+.dpad-r--nw { top: 10px; left: 14px; font-size: 12px; }
+.dpad-r--ne { top: 10px; right: 14px; font-size: 12px; }
+.dpad-r--sw { bottom: 10px; left: 14px; font-size: 12px; }
+.dpad-r--se { bottom: 10px; right: 14px; font-size: 12px; }
+
+.dpad-radial__center {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: #161630;
+  border: 1.5px solid #28284a;
+  pointer-events: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: background 0.05s, border-color 0.05s, transform 0.05s, opacity 0.05s;
-  -webkit-tap-highlight-color: transparent;
 }
 
-.gamepad-dpad__btn--up {
-  top: 0; left: 42px;
-  width: 46px; height: 46px;
-  border-radius: 10px 10px 3px 3px;
+.dpad-radial__center-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #3a3a58;
 }
 
-.gamepad-dpad__btn--down {
-  bottom: 0; left: 42px;
-  width: 46px; height: 46px;
-  border-radius: 3px 3px 10px 10px;
-}
-
-.gamepad-dpad__btn--left {
-  top: 42px; left: 0;
-  width: 46px; height: 46px;
-  border-radius: 10px 3px 3px 10px;
-}
-
-.gamepad-dpad__btn--right {
-  top: 42px; right: 0;
-  width: 46px; height: 46px;
-  border-radius: 3px 10px 10px 3px;
-}
-
-.gamepad-dpad__center {
-  position: absolute;
-  top: 42px; left: 42px;
-  width: 46px; height: 46px;
-  background: #151530;
-  border-radius: 8px;
-  border: 1px solid #2a2a50;
-}
-
-.gamepad-dpad__arrow {
-  font-size: 14px;
-  color: #8888a0;
-  pointer-events: none;
-}
-
-/* 按下反馈 */
-.gamepad-dpad__btn.gamepad-btn--pressed {
-  background: #3a3a60;
+/* 按压态 */
+.dpad-radial--pressed .dpad-radial__base {
   border-color: #d4a017;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.4), 0 0 20px rgba(212,160,23,0.3);
+}
+
+.dpad-radial--pressed .dpad-radial__arrow {
+  color: #d4a017;
+  text-shadow: 0 0 6px rgba(212,160,23,0.5);
+}
+
+.dpad-radial--pressed .dpad-radial__center-dot {
+  background: #d4a017;
+}
+
+/* ====== 功能键 Select / Start ====== */
+.gamepad-funcs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.gamepad-func-btn {
+  padding: 6px 14px;
+  border-radius: 14px;
+  border: 1px solid #2a2a48;
+  background: #1a1a38;
+  color: #8888a0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background 0.05s, border-color 0.05s, transform 0.05s, opacity 0.05s, color 0.05s;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+
+.gamepad-func-btn.gamepad-btn--pressed {
+  background: #2a2a50;
+  border-color: #d4a017;
+  color: #d4a017;
   transform: scale(0.92);
   opacity: 0.8;
 }
 
-/* ====== A / B 操作按钮 ====== */
+/* ====== A / B 操作键 — 横向排列（B 左，A 右） ====== */
 .gamepad-actions {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  flex-direction: row;
+  gap: 10px;
   align-items: center;
   flex-shrink: 0;
 }
@@ -146,82 +176,15 @@
   opacity: 0.75;
 }
 
-/* ====== Start / Select 功能键 ====== */
-.gamepad-funcs {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.gamepad-func-btn {
-  padding: 6px 14px;
-  border-radius: 14px;
-  border: 1px solid #2a2a48;
-  background: #1a1a38;
-  color: #8888a0;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  transition: background 0.05s, border-color 0.05s, transform 0.05s, opacity 0.05s, color 0.05s;
-  -webkit-tap-highlight-color: transparent;
-  white-space: nowrap;
-}
-
-.gamepad-func-btn.gamepad-btn--pressed {
-  background: #2a2a50;
-  border-color: #d4a017;
-  color: #d4a017;
-  transform: scale(0.92);
-  opacity: 0.8;
-}
-
-/* ====== 小屏幕适配（宽度 < 360px） ====== */
+/* ====== 小屏幕（<360px） ====== */
 @media (max-width: 359px) {
-  .gamepad-dpad {
-    width: 110px;
-    height: 110px;
-  }
-
-  .gamepad-dpad__btn--up,
-  .gamepad-dpad__btn--down,
-  .gamepad-dpad__btn--left,
-  .gamepad-dpad__btn--right {
-    width: 40px;
-    height: 40px;
-  }
-
-  .gamepad-dpad__btn--up { top: 0; left: 35px; }
-  .gamepad-dpad__btn--down { bottom: 0; left: 35px; }
-  .gamepad-dpad__btn--left { top: 35px; left: 0; }
-  .gamepad-dpad__btn--right { top: 35px; right: 0; }
-  .gamepad-dpad__center { top: 35px; left: 35px; width: 40px; height: 40px; }
-
-  .gamepad-action-btn {
-    width: 48px;
-    height: 48px;
-    font-size: 16px;
-  }
-
-  .gamepad-func-btn {
-    padding: 5px 10px;
-    font-size: 10px;
-  }
-
-  .virtual-gamepad {
-    padding: 8px 8px 14px;
-    gap: 4px;
-  }
+  .gamepad-dpad-radial { width: 80px; height: 80px; }
+  .gamepad-action-btn { width: 48px; height: 48px; font-size: 16px; }
+  .gamepad-func-btn { padding: 5px 10px; font-size: 10px; }
+  .virtual-gamepad { padding: 8px 8px 14px; gap: 4px; }
 }
 
-/* ====== 游戏画面适应虚拟手柄 ====== */
-.virtual-gamepad--visible ~ .canvas-container .game-canvas,
-body:has(.virtual-gamepad--visible) .canvas-container .game-canvas {
-  /* 当虚拟手柄可见时，确保 canvas 不被手柄遮挡 */
-}
-
+/* ====== 可见性 ====== */
 .virtual-gamepad--visible {
   display: flex !important;
 }
