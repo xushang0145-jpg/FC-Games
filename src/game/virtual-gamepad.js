@@ -142,7 +142,7 @@ export function createVirtualGamepad(containerEl, emulator, options = {}) {
 
   function handleDpadTouch(touch) {
     const info = getDpadInfo(touch);
-    const angle = Math.atan2(-info.dy, info.dx);
+    const angle = Math.atan2(info.dy, info.dx);
     const result = computeDirectionFromAngle(angle, info.dist, info.radius);
 
     if (!result) {
