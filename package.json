@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "download:roms": "node scripts/download-roms.js",
+    "generate:manifest": "node scripts/generate-manifest.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.107.0",

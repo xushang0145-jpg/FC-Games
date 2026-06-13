@@ -1,0 +1,446 @@
+{
+  "version": 1,
+  "generatedAt": "2026-06-13T05:55:45.661Z",
+  "files": [
+    {
+      "name": "1943.nes",
+      "sha256": "36818be12617037db261832f69570dde2cb888c970ebd41f5a35b237021327e7",
+      "size": 131088
+    },
+    {
+      "name": "蝙蝠侠.nes",
+      "sha256": "39b3982742429e9226de6d1f3eb86adb94fa54e77f416a635fa58a8e7c832093",
+      "size": 262160
+    },
+    {
+      "name": "兵蜂.nes",
+      "sha256": "1abd84018fcb65492d622e6f2d5bb3a3537394c1805a90213cd96a3f8cb4451c",
+      "size": 49168
+    },
+    {
+      "name": "彩虹岛.nes",
+      "sha256": "532a58e9c0fee848c3419206e5ee7dbca2a6900c499245efda20b58b39b773eb",
+      "size": 131088
+    },
+    {
+      "name": "拆屋工.nes",
+      "sha256": "e127bf217653afb13d622005a3617d164816daa96214e864201505e78acef7ec",
+      "size": 40976
+    },
+    {
+      "name": "超级魂斗罗.nes",
+      "sha256": "3f47051315209efcd3465f26f07496a5d65a9db88ebe504b5982a81314cd8036",
+      "size": 253968
+    },
+    {
+      "name": "超级玛莉.nes",
+      "sha256": "ec299b990e8bfee8ba46e3f61d63b2e1ae5b8a2e431de84e2e4bbd692dc53586",
+      "size": 40976
+    },
+    {
+      "name": "成龙踢馆.nes",
+      "sha256": "8c5f19551d0ea722828e6c3765293f9f4e00201ca902bde9da55479af21aba52",
+      "size": 40976
+    },
+    {
+      "name": "成龙之龙.nes",
+      "sha256": "fcaac82796b6504b764204ced9daf39bda3bda551ed101f7b6ed70a704afc17d",
+      "size": 262160
+    },
+    {
+      "name": "吃豆.nes",
+      "sha256": "c67e20d7144dac97ba9d4cef1ad90f13d6504e8492e60a6193c33695d68c4b22",
+      "size": 24592
+    },
+    {
+      "name": "赤色要塞.nes",
+      "sha256": "701f4d4da8db4566a12cfba194fc823990f808bea70a484b450ec0a6bba496a1",
+      "size": 131088
+    },
+    {
+      "name": "赤影战士.nes",
+      "sha256": "3ede04a9145cc9dbb5613e2afdf05c6c8ab77ecc2cc286a708153dfe8b3cae9d",
+      "size": 262160
+    },
+    {
+      "name": "充气狗.nes",
+      "sha256": "bb8199df2fb2024d45128f9bcca6a05eeb4c8ab832a20078652d9bb8f811187c",
+      "size": 24592
+    },
+    {
+      "name": "打砖块.nes",
+      "sha256": "051ec534fb620a6ec25a4c79ed142dc3cb0e45e4445bd834d19a5a536b46749f",
+      "size": 40976
+    },
+    {
+      "name": "地底探险.nes",
+      "sha256": "5b5b8bb2ce56461aa3766ed5e954db20bba345be1a1449ccd918a7ec04c5fca1",
+      "size": 40976
+    },
+    {
+      "name": "俄罗斯方块.nes",
+      "sha256": "5e4b49d021a77206873e0ee39953370cf0f187594353665303e57ea77d0a58f6",
+      "size": 65552
+    },
+    {
+      "name": "恶魔城.nes",
+      "sha256": "cfae7f26fc382d2619f21090fe07b17e62104576d490a9e12ffdd50568eba73e",
+      "size": 131088
+    },
+    {
+      "name": "鳄鱼先生.nes",
+      "sha256": "e6b3f3a8e0eb3fa50ca5bb429b09a29276e6196c0ee3ecc428475a89f33eaa3c",
+      "size": 262160
+    },
+    {
+      "name": "菲力猫.nes",
+      "sha256": "dc40d65067f175f38d9b0a058a8a8b2e12275d75f915cffcf451f1ef61a0bdc1",
+      "size": 262160
+    },
+    {
+      "name": "功夫.nes",
+      "sha256": "81f0fe9bf7deebf8779cce16ceea5b93c2ed613457ed5d61fcc281fde5fc948d",
+      "size": 24592
+    },
+    {
+      "name": "古巴英雄.nes",
+      "sha256": "5871c0bc3a06cfa2e1d9360a651025855d965fa3a9b77bcaeb331d2378ba1afb",
+      "size": 262160
+    },
+    {
+      "name": "怪鸭历险.nes",
+      "sha256": "5e9dae602c0a4a27d396e2fa4e7d7f7c5a817fff38d193eca942386b3d137dd8",
+      "size": 262160
+    },
+    {
+      "name": "荒野大镖客.nes",
+      "sha256": "4ad9629a2bacc158a7f50975869c7dfe533567ae399a5bdc5df2240286df259f",
+      "size": 131088
+    },
+    {
+      "name": "魂斗罗.nes",
+      "sha256": "6ba53139fa88b8de1ae527c438bda6f1541d1ee7df26d63dec5164a32d166bfe",
+      "size": 262160
+    },
+    {
+      "name": "魂斗罗S枪30条命版.nes",
+      "sha256": "6643104144db9ebdc4a6e1baa8932212caae7547fc77c3ee304c04b25193ed47",
+      "size": 131088
+    },
+    {
+      "name": "火箭车.nes",
+      "sha256": "e9e520b2efbb475fd529a69303f5af885c6f1503f827d0a31ad1dd691b86aa2e",
+      "size": 24592
+    },
+    {
+      "name": "火之鸟.nes",
+      "sha256": "981f6fc4796caec49667f07828ef616e43ec0986e47c4ecfabd8c830ab42365b",
+      "size": 131088
+    },
+    {
+      "name": "激龟快打.nes",
+      "sha256": "422a8d860a0bb35d3609145a5b57ef650674d43af82564c032ee7835e0bc6356",
+      "size": 262160
+    },
+    {
+      "name": "加纳战机.nes",
+      "sha256": "97efe540cc915a194bceaffc737b75e3a8181d92f3248757b3277c28f68764e4",
+      "size": 262160
+    },
+    {
+      "name": "嘉蒂外传.nes",
+      "sha256": "52ee8ce44e3b7ac0e6a9e73639f00420a9162f78c567e125ffea0145c65154df",
+      "size": 131088
+    },
+    {
+      "name": "究极虎.nes",
+      "sha256": "c2b04c61b40a1fe9b79796fcdd78419d2b8e6ac883daa3c57ac52198ddb7f32f",
+      "size": 262160
+    },
+    {
+      "name": "柯拉米世界2.nes",
+      "sha256": "575b0346e5e2ed7186d95c2b5f67fe7b51f18514edc0cf84b745b31688443587",
+      "size": 393232
+    },
+    {
+      "name": "快打旋风.nes",
+      "sha256": "4797cb9e898b9873e50ba4e5ddb6119ab35a58a451eaea6efc18d4dca3d41bc1",
+      "size": 262160
+    },
+    {
+      "name": "快乐猫.nes",
+      "sha256": "64f8b3e02838e0acace3bf9ca5c19c68d60cdfc4e8a416c1b6e73d9819572304",
+      "size": 24592
+    },
+    {
+      "name": "绿色兵团.nes",
+      "sha256": "40b58532877c9f234a46d1ce30e3b9c84aee33a7777337e60d60ecfe39a0def4",
+      "size": 131088
+    },
+    {
+      "name": "洛克人.nes",
+      "sha256": "e5bbc798798a0f5ae6e6d22a35df2fc3d08cefe6a1b278ed7f1cc325e8ee19e0",
+      "size": 131088
+    },
+    {
+      "name": "马戏团.nes",
+      "sha256": "608a8c542e49d5fa500634aa49ee96921d52c49c6e1646db7ca21ac7682ce4ba",
+      "size": 24592
+    },
+    {
+      "name": "冒险岛.nes",
+      "sha256": "17b38fd086e671ce15fefb2e916af87f4e3799b8758c5bc42f6727bcdc926313",
+      "size": 65552
+    },
+    {
+      "name": "冒险岛4.nes",
+      "sha256": "9d7402da135fd1290346ccc9332836daee3a9a3cda3789999c3f86efdb5b19c2",
+      "size": 393232
+    },
+    {
+      "name": "摩托车大赛.nes",
+      "sha256": "92bfa199b023e62cf48707da42fb64f3ca42c799890e6235a06161cf62e692bf",
+      "size": 40976
+    },
+    {
+      "name": "魔鬼总动员.nes",
+      "sha256": "6eb152c750b2bcc8e4239032eca0c31ae219f8ededc07af23147c5cedc7dd99e",
+      "size": 262160
+    },
+    {
+      "name": "南京企鹅.nes",
+      "sha256": "529b50520591ed70ccd4ed8a7a231cd6f11f4bf7112f5faa565aeb5369eb84c8",
+      "size": 24592
+    },
+    {
+      "name": "鸟人战队.nes",
+      "sha256": "7abe5bdc6c63e47ea84e57e27d10d15ee8696520cbb8026b4b2eb654a99aa0a1",
+      "size": 262160
+    },
+    {
+      "name": "七宝奇谋.nes",
+      "sha256": "30c9d00cd797899fdede35a3af50addc5f2d270b35cc2f60cbca361bf4a93d23",
+      "size": 49168
+    },
+    {
+      "name": "企鹅梦物语.nes",
+      "sha256": "318cea18aa4c2ce1a6068e5acc048752985f170a918e0ac334e1c830fcb0f6f7",
+      "size": 262160
+    },
+    {
+      "name": "敲冰块.nes",
+      "sha256": "d230a7febf7e639760b6088c2b38cf70686ed64d66974ad94fd5fcd5c0a3f50f",
+      "size": 24592
+    },
+    {
+      "name": "热血格斗传说.nes",
+      "sha256": "b09c4d3f242ea5740009aa14d1099dd92fa4a0df28a649bddecf6b3170918351",
+      "size": 262160
+    },
+    {
+      "name": "人间兵器.nes",
+      "sha256": "9e7ab18630c6c5c10b565c2234b2ee5d5d9ef06ab0b37051a0ca23cfb35e67ad",
+      "size": 294928
+    },
+    {
+      "name": "忍者龙剑传1.nes",
+      "sha256": "e4e5d0bcae02a220e58d9940d8d0a39ae75b5962b2fc44e0d4105e393c820d68",
+      "size": 262160
+    },
+    {
+      "name": "忍者龙剑传2.nes",
+      "sha256": "289cc703bdd1b26c4bb2d28e50f3e526427e90fea16344230942cf2595eaf9a6",
+      "size": 262160
+    },
+    {
+      "name": "忍者龙剑传3.nes",
+      "sha256": "4cd9b90e61cf8c5c34484619846e8b76e95b6bb94c49d37e72b9c2531883ce2a",
+      "size": 344080
+    },
+    {
+      "name": "忍者神龟2.nes",
+      "sha256": "637fa9d773cb39fcd4e55faf46bc53f82ac9d7706f8473adeb06e2b9e95c2414",
+      "size": 524304
+    },
+    {
+      "name": "忍者神龟3.nes",
+      "sha256": "d6dc27e16afd5d2ad151c0d593908aff9e59c9f710d2c559d5f13c856350560e",
+      "size": 524304
+    },
+    {
+      "name": "忍者蛙.nes",
+      "sha256": "23dffa731c738111e9fc3f7493b71837c0d29d5cd9b1e8b4208a34003dc3aaf9",
+      "size": 262160
+    },
+    {
+      "name": "三目童子.nes",
+      "sha256": "87d10cecf9e2f0419d675a7705b7a797639a751064d02c77f2d77fd862052bfc",
+      "size": 262160
+    },
+    {
+      "name": "三只小猪.nes",
+      "sha256": "0c6caf36ba4c57b15bc9dbd292a9cb800e1a1b9db21237d89c789d2ba7297630",
+      "size": 24592
+    },
+    {
+      "name": "沙罗曼蛇.nes",
+      "sha256": "fce0e800062bb97fa6f583f6af2799771d5d5decf31aa336812ffb75d527169e",
+      "size": 131088
+    },
+    {
+      "name": "双截龙2.nes",
+      "sha256": "f6bf0d786168133ce5640a1e983d6cb2386261932798fbafb0dd809c05f51985",
+      "size": 262160
+    },
+    {
+      "name": "双截龙3.nes",
+      "sha256": "f3f26894335a572534c0a3208ebc82bb7414bb86c3bd0b76b6df904b1c32702a",
+      "size": 262160
+    },
+    {
+      "name": "四季坦克.nes",
+      "sha256": "57da057253f37ea7677aef88f0df132b385294c9e22d2890c155af586af255cd",
+      "size": 40976
+    },
+    {
+      "name": "松鼠1.nes",
+      "sha256": "55e707abb77b83e9b9608e8defd4cd4b7f91da70dd44336a5bdc7037ee59aae2",
+      "size": 262160
+    },
+    {
+      "name": "松鼠2.nes",
+      "sha256": "8555d9725d221164497b3825780c0adaabf6a486352d50c7da1f4e2d0cd63db2",
+      "size": 262160
+    },
+    {
+      "name": "坦克大战.nes",
+      "sha256": "a869aead5b6957fc62002ff9636e048cc34baf0100d629b07dc51aa18f220c0c",
+      "size": 24592
+    },
+    {
+      "name": "唐老鸭梦冒险.nes",
+      "sha256": "4b3437c6da3c0226786c7bf522e2898fd2fac410d72fb1cfd54503356a0785d0",
+      "size": 131088
+    },
+    {
+      "name": "唐老鸭梦冒险2.nes",
+      "sha256": "94583908737277d861c7dc0c678bcbefe664ae37d7fb937d930bcaa8bf7a5b91",
+      "size": 131088
+    },
+    {
+      "name": "特救指令.nes",
+      "sha256": "b70ba5149d731333c86521f519eac23c9e904ebf475ed436995e3d91a910698f",
+      "size": 262160
+    },
+    {
+      "name": "踢王.nes",
+      "sha256": "4505d791f12354935a388428906808a2ef48f92e322ee27a2f3ad55706cac3e5",
+      "size": 262160
+    },
+    {
+      "name": "脱狱.nes",
+      "sha256": "c841b8dbff9a8cf2e6fd8cb5e29f1e21d4e3b4bb739c43ad10a43b7d6bfa8055",
+      "size": 262160
+    },
+    {
+      "name": "脱狱2.nes",
+      "sha256": "0ce60cfed344d0910d247596e78283360d10adea8d3b09a2405af6fee6d53fce",
+      "size": 262160
+    },
+    {
+      "name": "外星战将.nes",
+      "sha256": "3e74630a946eacc5d09782ed3599babd7b98b1cf03f4717c27bb7f396345adb4",
+      "size": 262160
+    },
+    {
+      "name": "顽皮狗.nes",
+      "sha256": "1bf7868bcc63a920dc27718f03b9660c07da8eac61869b919b1c589787c9a1f1",
+      "size": 262160
+    },
+    {
+      "name": "王子外传.nes",
+      "sha256": "232bb6bae5a6eb49aa11765b077461f66c0fea48a605109d201032467951ec77",
+      "size": 262160
+    },
+    {
+      "name": "未来战士.nes",
+      "sha256": "3b4aa8f6e34d1eb159df737222df1dda0609f1b5ead0dbf090b89023f24f3abb",
+      "size": 131088
+    },
+    {
+      "name": "西游记.nes",
+      "sha256": "8a26f9355a5d6e2049a062195694d35d2d1e701fa8b551a641d0f606375d80c3",
+      "size": 131088
+    },
+    {
+      "name": "小蜜蜂.nes",
+      "sha256": "b7f4fbe8459e8819031a8b571deb12589bd2c69208197be060a6086f91555ea9",
+      "size": 24592
+    },
+    {
+      "name": "烟山90坦克.nes",
+      "sha256": "ec453e7e3cc1d49d11d5860ced7f9e1235e2c7d33927bd6073b631754dc08dbb",
+      "size": 40976
+    },
+    {
+      "name": "影子传说.nes",
+      "sha256": "72fce2a76b602d96268a4800e2b981f8d44c761fb7bf2d83f1dd486d17dc075f",
+      "size": 49168
+    },
+    {
+      "name": "越野机车.nes",
+      "sha256": "103c19dad4b3db3c3cca935bae1cfe4ee025a3b927f32f0eeef11efc232362a4",
+      "size": 24592
+    },
+    {
+      "name": "炸弹人.nes",
+      "sha256": "0b5d24ccf0335b5f70a02fd162b20fa3a6defb83408f37a8701de83d5fcf2c9a",
+      "size": 24592
+    },
+    {
+      "name": "中东战争.nes",
+      "sha256": "68205fc0c5a1de9478b3163a8e4b2e4a9ac925937e4a8068f8fba39fbb8436a8",
+      "size": 262160
+    },
+    {
+      "name": "中国象棋.nes",
+      "sha256": "690c46ee7a0947e3a473028a267820b5d0babe0c00b43bbb6469816772beb09b",
+      "size": 40976
+    },
+    {
+      "name": "中华大仙.nes",
+      "sha256": "eab6b024c756613afbb38f7d043171944e0bac6b92d14f10c86ea14f3bd6247b",
+      "size": 262160
+    },
+    {
+      "name": "桌球.nes",
+      "sha256": "327c2304647f4604d36d1bf1bbc763b15bb43f2772bfdbed72596cf83572e77c",
+      "size": 163856
+    },
+    {
+      "name": "最终任务.nes",
+      "sha256": "139248195fb6b47742e6bcfb07b66ada1a37bf9b19b6f8c8d781689aa325b077",
+      "size": 262160
+    },
+    {
+      "name": "AV麻将.nes",
+      "sha256": "cbca83f8be96a076c4b7d2c28864bfb8c83abb28594815d5940a0dc627f26731",
+      "size": 98320
+    },
+    {
+      "name": "F1赛车.nes",
+      "sha256": "7d42d143cfc282f659ad3f351bcbaf66fac67d5a6ff7d10744c1cf4cdf8a3d1e",
+      "size": 24592
+    },
+    {
+      "name": "FC原人.nes",
+      "sha256": "fbe284790b938e406d04661c43e7ce9181d96b2f85cf728111d99f552f15ddc7",
+      "size": 393232
+    },
+    {
+      "name": "NBA.nes",
+      "sha256": "bf397eae9486044fca90a99215330203d6f85cab63a8072f28cacc139b5388cf",
+      "size": 131088
+    }
+  ]
+}

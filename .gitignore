@@ -12,3 +12,6 @@ coverage/
 playwright-report/
 test-results/
 .vercel
+
+# ROM files are hosted on CDN; manifest.json is kept for download/checksum
+roms/*.nes
