@@ -3,33 +3,20 @@
  * 负责：默认按键配置、从 localStorage 加载/保存、冲突检测、按键监听器工厂
  */
 import jsnes from 'jsnes';
+import { DEFAULT_BINDINGS as BASE_DEFAULT_BINDINGS, ACTION_LABELS } from '../shared/constants.js';
 import { loadKeyBindings, saveKeyBindings } from '../shared/storage.js';
 
+/**
+ * 游戏输入默认按键映射
+ * 在 shared DEFAULT_BINDINGS（8 个基础键）上扩展连发键
+ */
 export const DEFAULT_BINDINGS = {
-  up: 'KeyW',
-  down: 'KeyS',
-  left: 'KeyA',
-  right: 'KeyD',
-  a: 'KeyK',
-  b: 'KeyJ',
+  ...BASE_DEFAULT_BINDINGS,
   turboA: 'KeyI',
   turboB: 'KeyU',
-  start: 'Digit1',
-  select: 'Digit2',
 };
 
-export const ACTION_LABELS = {
-  up: '↑ 上',
-  down: '↓ 下',
-  left: '← 左',
-  right: '→ 右',
-  a: '🅰 A 按钮',
-  b: '🅱 B 按钮',
-  turboA: '🅰 A 连发',
-  turboB: '🅱 B 连发',
-  start: '▶ Start',
-  select: '🔘 Select',
-};
+export { ACTION_LABELS };
 
 export function loadBinding(gameId) {
   const saved = loadKeyBindings(gameId);

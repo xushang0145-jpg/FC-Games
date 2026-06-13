@@ -2,25 +2,10 @@
  * 详情浮层模块
  * 负责：浮层渲染、打开/关闭、事件绑定、按键说明展示
  */
+import { DEFAULT_BINDINGS, ACTION_LABELS } from '../shared/constants.js';
 import { loadKeyBindings } from '../shared/storage.js';
 import { formatRelativeTime } from '../shared/relative-time.js';
 import { hasSavestate } from '../shared/savestate.js';
-
-const ACTION_LABELS = {
-  up: '↑ 上',
-  down: '↓ 下',
-  left: '← 左',
-  right: '→ 右',
-  a: '🅱 A 按钮',
-  b: '🅲 B 按钮',
-  start: '▶ Start',
-  select: '🔘 Select',
-};
-
-const DEFAULT_BINDINGS = {
-  up: 'KeyW', down: 'KeyS', left: 'KeyA', right: 'KeyD',
-  a: 'KeyK', b: 'KeyJ', start: 'Digit1', select: 'Digit2',
-};
 
 function formatKeyCode(code) {
   return code
