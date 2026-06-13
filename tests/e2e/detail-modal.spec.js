@@ -35,9 +35,9 @@ test.describe('详情浮层', () => {
     await page.waitForSelector('.game-card');
     await page.locator('.game-card').first().click();
 
-    // 按键表应有 8 行
+    // 按键表应有 10 行（与 input.js DEFAULT_BINDINGS 一致）
     const controlRows = page.locator('.control-row');
-    await expect(controlRows).toHaveCount(8);
+    await expect(controlRows).toHaveCount(10);
 
     // 每行应有标签和按键
     const firstRow = controlRows.first();
