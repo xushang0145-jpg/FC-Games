@@ -28,9 +28,9 @@ describe('input', () => {
       expect(DEFAULT_BINDINGS.turboB).toBe('KeyU');
     });
 
-    it('Select/Start 默认键为 Digit1/Digit2', () => {
-      expect(DEFAULT_BINDINGS.select).toBe('Digit1');
-      expect(DEFAULT_BINDINGS.start).toBe('Digit2');
+    it('Start/Select 默认键为 Digit1/Digit2', () => {
+      expect(DEFAULT_BINDINGS.start).toBe('Digit1');
+      expect(DEFAULT_BINDINGS.select).toBe('Digit2');
     });
 
     it('10 个默认键位互不重复', () => {

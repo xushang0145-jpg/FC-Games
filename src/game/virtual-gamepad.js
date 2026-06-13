@@ -61,6 +61,8 @@ function computeDirectionFromAngle(angle, distance, radius) {
 export function createVirtualGamepad(containerEl, emulator, options = {}) {
   const activeTouches = new Map();
   let currentDpadActions = [];
+  let menuOpen = false;
+  let menuInfo = { auto: '自动：无', manual: '手动：无' };
 
   function createBtn(className, action, innerHTML) {
     const el = document.createElement('div');
@@ -117,12 +119,99 @@ export function createVirtualGamepad(containerEl, emulator, options = {}) {
     return el;
   }
 
+  // ---- 菜单按钮 ----
+  function buildMenuBtn() {
+    const el = document.createElement('div');
+    el.className = 'gamepad-menu-btn';
+    el.innerHTML = '&#9776;';
+    el.setAttribute('role', 'button');
+    el.setAttribute('data-menu-trigger', '1');
+    return el;
+  }
+
+  // ---- 底部菜单面板 ----
+  function buildMenuPanel() {
+    const panel = document.createElement('div');
+    panel.className = 'gamepad-menu-panel';
+
+    const saveItem = document.createElement('button');
+    saveItem.className = 'gamepad-menu-item';
+    saveItem.innerHTML = `<span class="gamepad-menu-item__label">&#128190; 存档</span><span class="gamepad-menu-item__sub" id="menu-auto-info">${menuInfo.auto}</span>`;
+    saveItem.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleMenu(false);
+      if (options.onSave) options.onSave();
+    });
+
+    const loadItem = document.createElement('button');
+    loadItem.className = 'gamepad-menu-item';
+    loadItem.innerHTML = `<span class="gamepad-menu-item__label">&#128449; 读档</span><span class="gamepad-menu-item__sub" id="menu-manual-info">${menuInfo.manual}</span>`;
+    loadItem.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleMenu(false);
+      if (options.onLoad) options.onLoad();
+    });
+
+    const backItem = document.createElement('button');
+    backItem.className = 'gamepad-menu-item';
+    backItem.innerHTML = '<span class="gamepad-menu-item__label">&#8605; 返回游戏</span>';
+    backItem.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleMenu(false);
+      if (options.onBack) options.onBack();
+    });
+
+    panel.appendChild(saveItem);
+    panel.appendChild(loadItem);
+    panel.appendChild(backItem);
+    return panel;
+  }
+
+  function toggleMenu(show) {
+    menuOpen = show;
+    if (show) {
+      menuPanel.classList.add('gamepad-menu-panel--open');
+      menuBtn.classList.add('gamepad-menu-btn--active');
+    } else {
+      menuPanel.classList.remove('gamepad-menu-panel--open');
+      menuBtn.classList.remove('gamepad-menu-btn--active');
+    }
+  }
+
   const dpadEl = buildRadialDpad();
   const actionsEl = buildActions();
   const funcsEl = buildFuncs();
+  const menuBtn = buildMenuBtn();
+  const menuPanel = buildMenuPanel();
   containerEl.appendChild(dpadEl);
   containerEl.appendChild(funcsEl);
+  containerEl.appendChild(menuBtn);
   containerEl.appendChild(actionsEl);
+  containerEl.appendChild(menuPanel);
+
+  menuBtn.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleMenu(!menuOpen);
+  }, { passive: false });
+
+  menuBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleMenu(!menuOpen);
+  });
+
+  // 点击菜单外部关闭菜单
+  document.addEventListener('touchstart', (e) => {
+    if (!menuOpen) return;
+    if (menuPanel.contains(e.target) || menuBtn.contains(e.target)) return;
+    toggleMenu(false);
+  }, { passive: true });
+
+  document.addEventListener('click', (e) => {
+    if (!menuOpen) return;
+    if (menuPanel.contains(e.target) || menuBtn.contains(e.target)) return;
+    toggleMenu(false);
+  });
 
   // ---- 圆形方向键触摸 ----
   function getDpadInfo(touch) {
@@ -251,5 +340,13 @@ export function createVirtualGamepad(containerEl, emulator, options = {}) {
     show() { containerEl.classList.add('virtual-gamepad--visible'); },
     hide() { containerEl.classList.remove('virtual-gamepad--visible'); },
     isVisible() { return containerEl.classList.contains('virtual-gamepad--visible'); },
+    hideMenu() { toggleMenu(false); },
+    updateMenuInfo(info) {
+      menuInfo = { ...menuInfo, ...info };
+      const autoEl = document.getElementById('menu-auto-info');
+      const manualEl = document.getElementById('menu-manual-info');
+      if (autoEl) autoEl.textContent = menuInfo.auto;
+      if (manualEl) manualEl.textContent = menuInfo.manual;
+    },
   };
 }

@@ -67,6 +67,28 @@ body {
 
 .topbar__keybind-btn:hover { border-color: var(--accent-gold); }
 
+.topbar__icon-btn {
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  transition: border-color 0.2s, opacity 0.2s;
+}
+
+.topbar__icon-btn:hover:not(:disabled) { border-color: var(--accent-gold); }
+.topbar__icon-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .topbar__title {
   font-size: 15px;
   font-weight: 600;
@@ -322,3 +344,79 @@ body:has(.virtual-gamepad--visible) .topbar__back {
     padding-bottom: 130px;
   }
 }
+
+/* 确认弹窗 */
+.confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 399;
+  display: none;
+}
+
+.confirm-backdrop--visible { display: block; }
+
+.confirm-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.96);
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 26px 30px;
+  min-width: 280px;
+  text-align: center;
+  z-index: 400;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  box-shadow: 0 10px 50px rgba(0,0,0,0.7);
+}
+
+.confirm-panel--open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.confirm-panel__text {
+  font-size: 15px;
+  margin-bottom: 22px;
+  line-height: 1.5;
+}
+
+.confirm-panel__actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+/* 非模态提示 */
+.savestate-toast {
+  position: fixed;
+  top: 64px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-12px);
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 22px;
+  font-size: 14px;
+  z-index: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+  max-width: 80vw;
+  text-align: center;
+}
+
+.savestate-toast--visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.savestate-toast--success { border-color: #2a8a3e; color: #7ee787; }
+.savestate-toast--error { border-color: var(--accent); color: #ff7b7b; }
+.savestate-toast--info { border-color: var(--accent-gold); color: #f0d78c; }

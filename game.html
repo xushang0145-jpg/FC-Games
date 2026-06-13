@@ -13,6 +13,8 @@
   <button class="topbar__back" id="back-to-list">&#8592; 返回列表</button>
   <div class="topbar__spacer"></div>
   <span class="topbar__title" id="topbar-title"></span>
+  <button class="topbar__icon-btn" id="save-btn" title="存档 (F2)">&#128190;</button>
+  <button class="topbar__icon-btn" id="load-btn" title="读档 (F4)">&#128449;</button>
   <button class="topbar__keybind-btn" id="keybind-btn">&#127918; 按键设置</button>
 </nav>
 
@@ -51,6 +53,19 @@
     <button class="btn--sm btn--save" id="keybind-save">保存设置</button>
   </div>
 </div>
+
+<!-- 存档覆盖确认弹窗 -->
+<div class="confirm-backdrop" id="confirm-backdrop"></div>
+<div class="confirm-panel" id="confirm-panel">
+  <div class="confirm-panel__text" id="confirm-msg">已有手动存档，是否覆盖？</div>
+  <div class="confirm-panel__actions">
+    <button class="btn--sm btn--cancel" id="confirm-cancel">取消</button>
+    <button class="btn--sm btn--save" id="confirm-ok">覆盖</button>
+  </div>
+</div>
+
+<!-- 存档/读档提示 -->
+<div class="savestate-toast" id="savestate-toast"></div>
 
 <script type="module" src="/src/game/main.js"></script>
 </body>
