@@ -169,5 +169,21 @@ export function createEmulator() {
 
   function getStatus() { return status; }
 
-  return { init, loadROM, start, stop, buttonDown, buttonUp, getStatus, setupAudio };
+  function saveState() {
+    if (!nes) return null;
+    return nes.toJSON();
+  }
+
+  function loadState(state) {
+    if (!nes) return false;
+    try {
+      nes.fromJSON(state);
+      return true;
+    } catch (e) {
+      console.error('读取模拟器状态失败:', e);
+      return false;
+    }
+  }
+
+  return { init, loadROM, start, stop, buttonDown, buttonUp, getStatus, setupAudio, saveState, loadState };
 }

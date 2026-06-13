@@ -176,12 +176,98 @@
   opacity: 0.75;
 }
 
+/* ====== 菜单按钮 ====== */
+.gamepad-menu-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid #2a2a48;
+  background: #1a1a38;
+  color: #8888a0;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.1s, border-color 0.1s, color 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.gamepad-menu-btn--active,
+.gamepad-menu-btn:active {
+  background: #2a2a50;
+  border-color: #d4a017;
+  color: #d4a017;
+}
+
+/* ====== 底部菜单面板 ====== */
+.gamepad-menu-panel {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 100%;
+  margin-bottom: 8px;
+  background: rgba(20, 20, 38, 0.98);
+  border: 1px solid #2a2a48;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-around;
+  align-items: stretch;
+  padding: 10px 6px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 160;
+}
+
+.gamepad-menu-panel--open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.gamepad-menu-item {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.gamepad-menu-item:active {
+  background: rgba(255,255,255,0.08);
+}
+
+.gamepad-menu-item__label {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.gamepad-menu-item__sub {
+  font-size: 10px;
+  color: #8888a0;
+  white-space: nowrap;
+}
+
 /* ====== 小屏幕（<360px） ====== */
 @media (max-width: 359px) {
   .gamepad-dpad-radial { width: 80px; height: 80px; }
   .gamepad-action-btn { width: 48px; height: 48px; font-size: 16px; }
   .gamepad-func-btn { padding: 5px 10px; font-size: 10px; }
   .virtual-gamepad { padding: 8px 8px 14px; gap: 4px; }
+  .gamepad-menu-btn { width: 32px; height: 32px; font-size: 15px; }
+  .gamepad-menu-item__label { font-size: 12px; }
+  .gamepad-menu-item__sub { font-size: 9px; }
 }
 
 /* ====== 可见性 ====== */
