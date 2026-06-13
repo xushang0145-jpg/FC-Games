@@ -10,27 +10,38 @@ import {
   renderKpiCards, renderPageViewTable, renderGameStatsTable,
   renderDeviceGrid, renderCityTable, renderEmptyState,
 } from './stats-ui.js';
+import { requireAuth } from './auth-guard.js';
 
 let currentRange = 'today';
 
-// 时间筛选器切换
-document.getElementById('time-filter').addEventListener('click', (e) => {
-  if (!e.target.classList.contains('time-filter__btn')) return;
-  document.querySelectorAll('.time-filter__btn').forEach(b => b.classList.remove('time-filter__btn--active'));
-  e.target.classList.add('time-filter__btn--active');
-  currentRange = e.target.dataset.range;
+// 页面加载前先做访问控制
+requireAuth().then(() => {
+  initDashboard();
+});
+
+function initDashboard() {
+  // 时间筛选器切换
+  document.getElementById('time-filter').addEventListener('click', (e) => {
+    if (!e.target.classList.contains('time-filter__btn')) return;
+    document.querySelectorAll('.time-filter__btn').forEach(b => b.classList.remove('time-filter__btn--active'));
+    e.target.classList.add('time-filter__btn--active');
+    currentRange = e.target.dataset.range;
+    loadData();
+  });
+
+  // 导出按钮
+  document.getElementById('export-btn').addEventListener('click', () => {
+    exportRawEvents(currentRange);
+  });
+
+  // 返回首页
+  document.getElementById('back-btn').addEventListener('click', () => {
+    window.location.href = '/';
+  });
+
+  // 首次加载
   loadData();
-});
-
-// 导出按钮
-document.getElementById('export-btn').addEventListener('click', () => {
-  exportRawEvents(currentRange);
-});
-
-// 返回首页
-document.getElementById('back-btn').addEventListener('click', () => {
-  window.location.href = '/';
-});
+}
 
 // 加载所有数据
 async function loadData() {
@@ -53,6 +64,3 @@ async function loadData() {
   const totalData = kpi.totalPages + kpi.totalStarts;
   renderEmptyState(document.getElementById('empty-state'), totalData);
 }
-
-// 首次加载
-loadData();
