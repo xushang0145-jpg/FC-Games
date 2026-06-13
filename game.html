@@ -14,6 +14,7 @@
   <div class="topbar__spacer"></div>
   <span class="topbar__title" id="topbar-title"></span>
   <button class="topbar__keybind-btn" id="keybind-btn">&#127918; 按键设置</button>
+  <button class="topbar__help-btn" id="help-btn">&#10067; 帮助</button>
 </nav>
 
 <div class="canvas-container" id="canvas-container">
@@ -50,6 +51,17 @@
     <button class="btn--sm btn--cancel" id="keybind-cancel">取消</button>
     <button class="btn--sm btn--save" id="keybind-save">保存设置</button>
   </div>
+</div>
+
+<!-- 键位帮助浮层 -->
+<div class="help-backdrop" id="help-backdrop"></div>
+<div class="help-panel" id="help-panel">
+  <div class="help-panel__header">
+    <div class="help-panel__title">键位帮助</div>
+    <button class="help-panel__close" id="help-close">&#10005;</button>
+  </div>
+  <div class="help-panel__body" id="help-body"></div>
+  <div class="help-panel__footer">按 <kbd>H</kbd> 键快速打开 / 关闭帮助</div>
 </div>
 
 <script type="module" src="/src/game/main.js"></script>

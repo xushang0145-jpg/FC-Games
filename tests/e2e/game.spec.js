@@ -114,4 +114,49 @@ test.describe('游戏运行页', () => {
     const canvas = page.locator('#game-canvas');
     await expect(canvas).toBeVisible();
   });
+
+  test('帮助按钮可打开键位帮助浮层', async ({ page }) => {
+    await page.goto('/game.html?rom=超级玛莉.nes');
+    await page.waitForTimeout(1000);
+
+    await page.locator('#help-btn').click();
+
+    const helpPanel = page.locator('#help-panel');
+    await expect(helpPanel).toBeVisible();
+
+    // 帮助表应有 10 行
+    const helpRows = page.locator('.help-row');
+    await expect(helpRows).toHaveCount(10);
+  });
+
+  test('按 H 键可开关键位帮助浮层', async ({ page }) => {
+    await page.goto('/game.html?rom=超级玛莉.nes');
+    await page.waitForTimeout(1000);
+
+    const helpPanel = page.locator('#help-panel');
+    await expect(helpPanel).not.toBeVisible();
+
+    await page.keyboard.press('KeyH');
+    await expect(helpPanel).toBeVisible();
+
+    await page.keyboard.press('KeyH');
+    await expect(helpPanel).not.toBeVisible();
+  });
+
+  test('帮助浮层显示当前默认键位', async ({ page }) => {
+    await page.goto('/game.html?rom=超级玛莉.nes');
+    await page.waitForTimeout(1000);
+
+    await page.locator('#help-btn').click();
+
+    const helpRows = page.locator('.help-row');
+    await expect(helpRows).toHaveCount(10);
+
+    // Start 显示为 1，Select 显示为 2
+    const startRow = helpRows.filter({ hasText: 'Start' });
+    await expect(startRow.locator('.help-row__key')).toHaveText('1');
+
+    const selectRow = helpRows.filter({ hasText: 'Select' });
+    await expect(selectRow.locator('.help-row__key')).toHaveText('2');
+  });
 });

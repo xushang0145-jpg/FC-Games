@@ -1,11 +1,106 @@
 
 import { createEmulator } from './emulator.js';
-import { loadBinding, saveBinding, createInputHandler } from './input.js';
+import { loadBinding, saveBinding, createInputHandler, ACTION_LABELS } from './input.js';
 import { createKeybindingUI } from './keybinding-ui.js';
 import { recordPlayHistory } from '../shared/play-history.js';
 import { trackPageView, trackGameStart, trackGameDuration, flushQueue } from '../shared/analytics.js';
 import { isMobileDevice } from '../shared/device.js';
 import { createVirtualGamepad } from './virtual-gamepad.js';
+
+// ====== 键位帮助浮层 ======
+function createHelpUI(initialBindings) {
+  let bindings = { ...initialBindings };
+  let isOpen = false;
+
+  const panel = document.getElementById('help-panel');
+  const backdrop = document.getElementById('help-backdrop');
+  const body = document.getElementById('help-body');
+  const toggleBtn = document.getElementById('help-btn');
+  const closeBtn = document.getElementById('help-close');
+
+  function formatCode(code) {
+    return code
+      .replace('Arrow', '')
+      .replace('Key', '')
+      .replace('Shift', 'Shift+')
+      .replace('Right', 'R')
+      .replace('Left', 'L')
+      .replace('Control', 'Ctrl+')
+      .replace('Digit', '');
+  }
+
+  function render() {
+    body.innerHTML = '';
+    for (const [action, code] of Object.entries(bindings)) {
+      const row = document.createElement('div');
+      row.className = 'help-row';
+
+      const label = document.createElement('span');
+      label.className = 'help-row__label';
+      label.textContent = ACTION_LABELS[action];
+
+      const keyEl = document.createElement('span');
+      keyEl.className = 'help-row__key';
+      keyEl.textContent = formatCode(code);
+
+      row.appendChild(label);
+      row.appendChild(keyEl);
+      body.appendChild(row);
+    }
+  }
+
+  function blockGameInput(e) {
+    if (e.type === 'keydown' && e.code === 'Escape') {
+      close();
+    }
+    e.stopPropagation();
+    e.preventDefault();
+  }
+
+  function open() {
+    if (isOpen) return;
+    isOpen = true;
+    render();
+    panel.classList.add('help-panel--visible');
+    backdrop.classList.add('help-backdrop--visible');
+    document.addEventListener('keydown', blockGameInput, true);
+    document.addEventListener('keyup', blockGameInput, true);
+  }
+
+  function close() {
+    if (!isOpen) return;
+    isOpen = false;
+    panel.classList.remove('help-panel--visible');
+    backdrop.classList.remove('help-backdrop--visible');
+    document.removeEventListener('keydown', blockGameInput, true);
+    document.removeEventListener('keyup', blockGameInput, true);
+  }
+
+  function toggle() {
+    if (isOpen) close();
+    else open();
+  }
+
+  function updateBindings(newBindings) {
+    bindings = { ...newBindings };
+    if (isOpen) render();
+  }
+
+  function handleToggleKey(e) {
+    if (e.code === 'KeyH' && !e.repeat) {
+      e.preventDefault();
+      e.stopPropagation();
+      toggle();
+    }
+  }
+
+  toggleBtn.addEventListener('click', toggle);
+  closeBtn.addEventListener('click', close);
+  backdrop.addEventListener('click', close);
+  document.addEventListener('keydown', handleToggleKey, true);
+
+  return { open, close, toggle, updateBindings, isOpen: () => isOpen };
+}
 
 // ====== DOM 引用 ======
 const canvasEl = document.getElementById('game-canvas');
@@ -89,9 +184,13 @@ async function initGame(romFile) {
       bindings = { ...newBindings };
       updateInput();
       keybindingUI.updateBindings(bindings);
+      helpUI.updateBindings(bindings);
     }
     return result;
   });
+
+  // 键位帮助浮层
+  const helpUI = createHelpUI(bindings);
 
   // 记录游戏时长的辅助函数
   function recordDuration() {

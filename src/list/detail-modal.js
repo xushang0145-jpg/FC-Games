@@ -2,33 +2,13 @@
  * 详情浮层模块
  * 负责：浮层渲染、打开/关闭、事件绑定、按键说明展示
  */
-import { loadKeyBindings } from '../shared/storage.js';
+import { loadBinding, ACTION_LABELS } from '../game/input.js';
 import { formatRelativeTime } from '../shared/relative-time.js';
-
-const ACTION_LABELS = {
-  up: '↑ 上',
-  down: '↓ 下',
-  left: '← 左',
-  right: '→ 右',
-  a: '🅱 A 按钮',
-  b: '🅲 B 按钮',
-  start: '▶ Start',
-  select: '🔘 Select',
-};
-
-const DEFAULT_BINDINGS = {
-  up: 'KeyW', down: 'KeyS', left: 'KeyA', right: 'KeyD',
-  a: 'KeyK', b: 'KeyJ', start: 'Digit1', select: 'Digit2',
-};
 
 function formatKeyCode(code) {
   return code
     .replace('Arrow', '')
     .replace('Key', '')
-    .replace('Shift', 'Shift+')
-    .replace('Right', ' →')
-    .replace('Left', ' ←')
-    .replace('Control', 'Ctrl+')
     .replace('Digit', '');
 }
 
@@ -138,7 +118,7 @@ export function createDetailModal() {
     }
 
     // 填充按键说明表
-    const bindingsToShow = bindings || loadKeyBindings(game.id) || DEFAULT_BINDINGS;
+    const bindingsToShow = bindings || loadBinding(game.id);
     dom.controlsTable.innerHTML = '';
     for (const [action, code] of Object.entries(bindingsToShow)) {
       const row = document.createElement('div');
