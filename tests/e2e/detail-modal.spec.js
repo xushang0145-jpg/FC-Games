@@ -45,7 +45,7 @@ test.describe('详情浮层', () => {
     await expect(firstRow.locator('.control-row__key')).not.toBeEmpty();
   });
 
-  test('T014 — 点击开始游戏按钮跳转', async ({ page, context }) => {
+  test('T014 — 点击开始游戏按钮跳转', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('.game-card');
     await page.locator('.game-card').first().click();
@@ -54,16 +54,14 @@ test.describe('详情浮层', () => {
     const cardEl = page.locator('.game-card').first();
     const gameId = await cardEl.getAttribute('data-game-id');
 
-    // 点击开始游戏应打开新标签页
-    const [newPage] = await Promise.all([
-      context.waitForEvent('page'),
+    // 点击开始游戏应跳转至游戏页
+    await Promise.all([
+      page.waitForURL(/\/game\.html\?rom=/),
       page.locator('.btn-start').click(),
     ]);
 
-    await newPage.waitForLoadState('domcontentloaded');
-    expect(newPage.url()).toContain('game.html?rom=');
-    expect(newPage.url()).toContain(encodeURIComponent(gameId));
-    await newPage.close();
+    expect(page.url()).toContain('game.html?rom=');
+    expect(page.url()).toContain(encodeURIComponent(gameId));
   });
 
   test('T015 — 关闭按钮关闭浮层', async ({ page }) => {
@@ -103,19 +101,17 @@ test.describe('详情浮层', () => {
     await page.locator('.detail-modal').waitFor({ state: 'detached', timeout: 5000 });
   });
 
-  test('T030 — Enter 键开始游戏', async ({ page, context }) => {
+  test('T030 — Enter 键开始游戏', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('.game-card');
     await page.locator('.game-card').first().click();
 
-    // 按 Enter 应打开新标签页
-    const [newPage] = await Promise.all([
-      context.waitForEvent('page'),
+    // 按 Enter 应跳转至游戏页
+    await Promise.all([
+      page.waitForURL(/\/game\.html\?rom=/),
       page.keyboard.press('Enter'),
     ]);
 
-    await newPage.waitForLoadState('domcontentloaded');
-    expect(newPage.url()).toContain('game.html?rom=');
-    await newPage.close();
+    expect(page.url()).toContain('game.html?rom=');
   });
 });
