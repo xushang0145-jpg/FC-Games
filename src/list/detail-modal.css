@@ -207,6 +207,17 @@
   color: var(--text-dim);
 }
 
+.resume-hint {
+  text-align: center;
+  font-size: 13px;
+  color: var(--accent-gold);
+  background: rgba(212, 160, 23, 0.08);
+  border: 1px solid rgba(212, 160, 23, 0.2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+}
+
 .footer-hint kbd {
   display: inline-block;
   padding: 2px 6px;
