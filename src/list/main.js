@@ -1,6 +1,7 @@
 import { loadKeyBindings } from '../shared/storage.js';
 import { createDetailModal } from './detail-modal.js';
 import { getPlayHistory, getAllPlayHistory } from '../shared/play-history.js';
+import { formatRelativeTime } from '../shared/relative-time.js';
 import { trackPageView, flushQueue } from '../shared/analytics.js';
 
 // 游戏表情图标（按文件名关键词匹配）
@@ -73,6 +74,58 @@ function createCard(game, playRecord) {
   });
 
   return div;
+}
+
+function renderContinueGame() {
+  const section = document.getElementById('continue-game');
+  const card = document.getElementById('continue-game-card');
+  if (!section || !card) return;
+
+  const allHistory = getAllPlayHistory();
+  const entries = Object.entries(allHistory).sort((a, b) => {
+    return new Date(b[1]).getTime() - new Date(a[1]).getTime();
+  });
+
+  if (entries.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+
+  const [gameId, lastPlayedAt] = entries[0];
+  const game = games.find(g => g.id === gameId);
+  if (!game) {
+    section.style.display = 'none';
+    return;
+  }
+
+  card.innerHTML = '';
+  card.setAttribute('data-game-id', game.id);
+
+  const icon = document.createElement('div');
+  icon.className = 'continue-game__icon';
+  icon.textContent = getGameIcon(game.name);
+
+  const info = document.createElement('div');
+  info.className = 'continue-game__info';
+
+  const name = document.createElement('div');
+  name.className = 'continue-game__name';
+  name.textContent = game.name;
+
+  const time = document.createElement('div');
+  time.className = 'continue-game__time';
+  time.textContent = formatRelativeTime(lastPlayedAt);
+
+  info.appendChild(name);
+  info.appendChild(time);
+  card.appendChild(icon);
+  card.appendChild(info);
+
+  card.addEventListener('click', () => {
+    window.location.href = '/game.html?rom=' + encodeURIComponent(game.id) + '&continue=1';
+  });
+
+  section.style.display = 'block';
 }
 
 let currentFilter = 'all'; // 'all' | 'recent'
@@ -150,6 +203,7 @@ document.getElementById('search-input').addEventListener('input', (e) => {
 
 // 初始化
 createFilterTags();
+renderContinueGame();
 renderGrid();
 
 // 埋点：页面浏览追踪
