@@ -4,6 +4,7 @@
  */
 import { loadKeyBindings } from '../shared/storage.js';
 import { formatRelativeTime } from '../shared/relative-time.js';
+import { hasSavestate } from '../shared/savestate.js';
 
 const ACTION_LABELS = {
   up: '↑ 上',
@@ -126,7 +127,8 @@ export function createDetailModal() {
 
     // 填充内容
     dom.title.textContent = game.name;
-    dom.startBtn.textContent = '▶ 开始游戏';
+    const hasAutoSave = hasSavestate(game.id, 'auto');
+    dom.startBtn.textContent = hasAutoSave ? '▶ 继续游戏' : '▶ 开始游戏';
 
     // 显示最近玩过标签
     if (playRecord && playRecord.lastPlayedAt) {
@@ -135,6 +137,14 @@ export function createDetailModal() {
     } else {
       dom.recentTag.style.display = 'none';
       dom.recentTime.textContent = '';
+    }
+
+    // 存档恢复提示
+    if (hasAutoSave) {
+      const resumeHint = document.createElement('div');
+      resumeHint.className = 'resume-hint';
+      resumeHint.textContent = '检测到自动存档，点击继续上次进度';
+      dom.footer.insertBefore(resumeHint, dom.hint);
     }
 
     // 填充按键说明表
@@ -188,7 +198,9 @@ export function createDetailModal() {
 
     // 开始游戏
     function openGame() {
-      window.location.href = '/game.html?rom=' + encodeURIComponent(game.id);
+      const hasAutoSave = hasSavestate(game.id, 'auto');
+      const continueParam = hasAutoSave ? '&continue=1' : '';
+      window.location.href = '/game.html?rom=' + encodeURIComponent(game.id) + continueParam;
     }
     dom.startBtn.addEventListener('click', function onStartClick(e) {
       e.preventDefault();

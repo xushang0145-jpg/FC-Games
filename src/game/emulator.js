@@ -169,5 +169,22 @@ export function createEmulator() {
 
   function getStatus() { return status; }
 
-  return { init, loadROM, start, stop, buttonDown, buttonUp, getStatus, setupAudio };
+  function serializeState() {
+    if (!nes) return null;
+    return nes.toJSON();
+  }
+
+  function deserializeState(state) {
+    if (!nes || !state) return false;
+    try {
+      nes.fromJSON(state);
+      status = 'loaded';
+      return true;
+    } catch (e) {
+      console.error('反序列化存档失败:', e);
+      return false;
+    }
+  }
+
+  return { init, loadROM, start, stop, buttonDown, buttonUp, getStatus, setupAudio, serializeState, deserializeState };
 }
