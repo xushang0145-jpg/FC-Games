@@ -2,7 +2,7 @@
  * 按键设置面板 UI
  * 负责：渲染面板、按键捕获、冲突提示、保存/取消
  */
-import { ACTION_LABELS } from './input.js';
+import { ACTION_LABELS } from '../shared/constants.js';
 
 export function createKeybindingUI(bindings, onSave) {
   let currentBindings = { ...bindings };
