@@ -3,6 +3,7 @@ import { createEmulator } from './emulator.js';
 import { loadBinding, saveBinding, createInputHandler } from './input.js';
 import { createKeybindingUI } from './keybinding-ui.js';
 import { recordPlayHistory } from '../shared/play-history.js';
+import { saveAutoSavestate, loadSavestate } from '../shared/savestate.js';
 import { trackPageView, trackGameStart, trackGameDuration, flushQueue } from '../shared/analytics.js';
 import { isMobileDevice } from '../shared/device.js';
 import { createVirtualGamepad } from './virtual-gamepad.js';
@@ -19,6 +20,7 @@ const gamepadContainer = document.getElementById('virtual-gamepad');
 
 const params = new URLSearchParams(window.location.search);
 const romFile = params.get('rom');
+const shouldContinue = params.get('continue') === '1';
 
 // 浏览器能力检测
 const hasCanvas = !!canvasEl.getContext;
@@ -111,6 +113,11 @@ async function initGame(romFile) {
   // 资源释放
   window.addEventListener('beforeunload', () => {
     recordDuration();
+    const currentStatus = emulator.getStatus();
+    if (currentStatus === 'running' || currentStatus === 'loaded') {
+      const state = emulator.serializeState();
+      if (state) saveAutoSavestate(romFile, state);
+    }
     document.removeEventListener('keydown', inputHandler.onKeyDown);
     document.removeEventListener('keyup', inputHandler.onKeyUp);
     if (inputHandler.destroy) inputHandler.destroy();
@@ -129,6 +136,10 @@ async function initGame(romFile) {
       throw new Error('不支持的 ROM 格式');
     }
     emulator.loadROM(romData);
+    const autoSave = shouldContinue ? loadSavestate(romFile, 'auto') : null;
+    if (autoSave && autoSave.state) {
+      emulator.deserializeState(autoSave.state);
+    }
     emulator.start();
     recordPlayHistory(romFile);
     gameStartTime = Date.now();
