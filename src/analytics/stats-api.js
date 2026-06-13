@@ -1,13 +1,14 @@
 /**
  * 统计仪表盘 API 封装
- * Supabase 查询（聚合统计、原始数据导出）
+ * 通过 Supabase RPC 调用服务端聚合函数，不再把原始 events 拉到浏览器端聚合
  * Supabase 未配置时所有函数返回空数据
  */
 
 import { supabase } from '../shared/analytics.js';
 
 /**
- * 获取时间范围的起始和结束 ISO 字符串
+ * 获取时间范围的起始和结束 ISO 字符串（统一使用 UTC，避免客户端时区不一致）
+ * 返回 null 表示不限制该侧边界
  */
 function getTimeRange(range) {
   const now = new Date();
@@ -15,17 +16,17 @@ function getTimeRange(range) {
 
   switch (range) {
     case 'today':
-      start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
       break;
     case 'week': {
-      const day = now.getDay();
+      const day = now.getUTCDay();
       const mondayOffset = day === 0 ? -6 : 1 - day;
-      start = new Date(now.getFullYear(), now.getMonth(), now.getDate() + mondayOffset);
-      start.setHours(0, 0, 0, 0);
+      start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + mondayOffset));
+      start.setUTCHours(0, 0, 0, 0);
       break;
     }
     case 'month':
-      start = new Date(now.getFullYear(), now.getMonth(), 1);
+      start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
       break;
     case 'all':
     default:
@@ -38,31 +39,37 @@ function getTimeRange(range) {
   };
 }
 
+const EMPTY_KPI = { totalPages: 0, totalStarts: 0, totalDuration: 0, uv: 0 };
+
 /**
  * KPI 汇总
  */
 export async function getKpiSummary(range) {
-  if (!supabase) return { totalPages: 0, totalStarts: 0, totalDuration: 0, uv: 0 };
+  if (!supabase) return { ...EMPTY_KPI };
 
   const { start, end } = getTimeRange(range);
-  let query = supabase.from('events').select('event_type, user_id, duration_seconds', { count: 'exact' });
-  if (start) query = query.gte('client_timestamp', start);
-  if (end) query = query.lte('client_timestamp', end);
+  try {
+    const { data, error } = await supabase.rpc('get_dashboard_kpi_summary', {
+      start_time: start,
+      end_time: end,
+    });
 
-  const { data, count, error } = await query;
-  if (error || !data) return { totalPages: 0, totalStarts: 0, totalDuration: 0, uv: 0 };
+    if (error || !data || data.length === 0) {
+      console.error('KPI 汇总查询失败:', error?.message);
+      return { ...EMPTY_KPI };
+    }
 
-  const totalPages = data.filter(e => e.event_type === 'page_view').length;
-  const totalStarts = data.filter(e => e.event_type === 'game_start').length;
-  const totalDuration = data.filter(e => e.event_type === 'game_duration').reduce((sum, e) => sum + (e.duration_seconds || 0), 0);
-  const uniqueUsers = new Set(data.map(e => e.user_id)).size;
-
-  return {
-    totalPages,
-    totalStarts,
-    totalDuration: Math.floor(totalDuration / 60),
-    uv: uniqueUsers,
-  };
+    const row = data[0];
+    return {
+      totalPages: Number(row.total_pages || 0),
+      totalStarts: Number(row.total_starts || 0),
+      totalDuration: Number(row.total_duration_minutes || 0),
+      uv: Number(row.uv || 0),
+    };
+  } catch (err) {
+    console.error('KPI 汇总查询异常:', err.message);
+    return { ...EMPTY_KPI };
+  }
 }
 
 /**
@@ -72,25 +79,26 @@ export async function getPageViewStats(range) {
   if (!supabase) return [];
 
   const { start, end } = getTimeRange(range);
-  let query = supabase.from('events')
-    .select('page_path, count')
-    .eq('event_type', 'page_view');
+  try {
+    const { data, error } = await supabase.rpc('get_dashboard_page_view_stats', {
+      start_time: start,
+      end_time: end,
+    });
 
-  if (start) query = query.gte('client_timestamp', start);
-  if (end) query = query.lte('client_timestamp', end);
+    if (error || !data) {
+      console.error('页面排行查询失败:', error?.message);
+      return [];
+    }
 
-  const { data, error } = await query;
-  if (error || !data) return [];
-
-  const counts = {};
-  for (const row of data) {
-    counts[row.page_path] = (counts[row.page_path] || 0) + 1;
+    return data.map(row => ({
+      path: row.path,
+      count: Number(row.count || 0),
+      percent: Number(row.percent || 0),
+    }));
+  } catch (err) {
+    console.error('页面排行查询异常:', err.message);
+    return [];
   }
-
-  const total = Object.values(counts).reduce((s, c) => s + c, 0) || 1;
-  return Object.entries(counts)
-    .map(([path, count]) => ({ path, count, percent: Math.round(count / total * 100) }))
-    .sort((a, b) => b.count - a.count);
 }
 
 /**
@@ -100,29 +108,26 @@ export async function getGameStats(range) {
   if (!supabase) return [];
 
   const { start, end } = getTimeRange(range);
-  let query = supabase.from('events')
-    .select('game_name, event_type, duration_seconds')
-    .in('event_type', ['game_start', 'game_duration'])
-    .not('game_name', 'is', null);
+  try {
+    const { data, error } = await supabase.rpc('get_dashboard_game_stats', {
+      start_time: start,
+      end_time: end,
+    });
 
-  if (start) query = query.gte('client_timestamp', start);
-  if (end) query = query.lte('client_timestamp', end);
-
-  const { data, error } = await query;
-  if (error || !data) return [];
-
-  const stats = {};
-  for (const row of data) {
-    if (!stats[row.game_name]) {
-      stats[row.game_name] = { name: row.game_name, startCount: 0, totalDuration: 0 };
+    if (error || !data) {
+      console.error('游戏排行查询失败:', error?.message);
+      return [];
     }
-    if (row.event_type === 'game_start') stats[row.game_name].startCount++;
-    if (row.event_type === 'game_duration') stats[row.game_name].totalDuration += (row.duration_seconds || 0);
-  }
 
-  return Object.values(stats)
-    .map(s => ({ ...s, totalDuration: Math.floor(s.totalDuration / 60) }))
-    .sort((a, b) => b.startCount - a.startCount);
+    return data.map(row => ({
+      name: row.name,
+      startCount: Number(row.start_count || 0),
+      totalDuration: Number(row.total_duration_minutes || 0),
+    }));
+  } catch (err) {
+    console.error('游戏排行查询异常:', err.message);
+    return [];
+  }
 }
 
 /**
@@ -132,25 +137,26 @@ export async function getDeviceStats(range) {
   if (!supabase) return [];
 
   const { start, end } = getTimeRange(range);
-  let query = supabase.from('events')
-    .select('device_type, count')
-    .eq('event_type', 'page_view');
+  try {
+    const { data, error } = await supabase.rpc('get_dashboard_device_stats', {
+      start_time: start,
+      end_time: end,
+    });
 
-  if (start) query = query.gte('client_timestamp', start);
-  if (end) query = query.lte('client_timestamp', end);
+    if (error || !data) {
+      console.error('设备分布查询失败:', error?.message);
+      return [];
+    }
 
-  const { data, error } = await query;
-  if (error || !data) return [];
-
-  const counts = {};
-  for (const row of data) {
-    const type = row.device_type || 'unknown';
-    counts[type] = (counts[type] || 0) + 1;
+    return data.map(row => ({
+      type: row.type,
+      count: Number(row.count || 0),
+      percent: Number(row.percent || 0),
+    }));
+  } catch (err) {
+    console.error('设备分布查询异常:', err.message);
+    return [];
   }
-
-  const total = Object.values(counts).reduce((s, c) => s + c, 0) || 1;
-  return Object.entries(counts)
-    .map(([type, count]) => ({ type, count, percent: Math.round(count / total * 100) }));
 }
 
 /**
@@ -160,31 +166,30 @@ export async function getCityStats(range) {
   if (!supabase) return [];
 
   const { start, end } = getTimeRange(range);
-  let query = supabase.from('events')
-    .select('city, country, count')
-    .eq('event_type', 'page_view')
-    .not('city', 'is', null);
+  try {
+    const { data, error } = await supabase.rpc('get_dashboard_city_stats', {
+      start_time: start,
+      end_time: end,
+    });
 
-  if (start) query = query.gte('client_timestamp', start);
-  if (end) query = query.lte('client_timestamp', end);
+    if (error || !data) {
+      console.error('城市排行查询失败:', error?.message);
+      return [];
+    }
 
-  const { data, error } = await query;
-  if (error || !data) return [];
-
-  const counts = {};
-  for (const row of data) {
-    const key = `${row.city}, ${row.country || ''}`;
-    counts[key] = (counts[key] || 0) + 1;
+    return data.map(row => ({
+      city: row.city,
+      count: Number(row.count || 0),
+    }));
+  } catch (err) {
+    console.error('城市排行查询异常:', err.message);
+    return [];
   }
-
-  return Object.entries(counts)
-    .map(([city, count]) => ({ city, count }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 10);
 }
 
 /**
  * 导出原始事件数据为 JSON 文件
+ * 仍从 events 表拉取，但按时间范围过滤并限制 10000 条，避免大数据量拖垮浏览器
  */
 export async function exportRawEvents(range) {
   if (!supabase) {
@@ -193,24 +198,29 @@ export async function exportRawEvents(range) {
   }
 
   const { start, end } = getTimeRange(range);
-  let query = supabase.from('events')
-    .select('*')
-    .order('client_timestamp', { ascending: false });
+  try {
+    let query = supabase.from('events')
+      .select('*')
+      .order('client_timestamp', { ascending: false })
+      .limit(10000);
 
-  if (start) query = query.gte('client_timestamp', start);
-  if (end) query = query.lte('client_timestamp', end);
+    if (start) query = query.gte('client_timestamp', start);
+    if (end) query = query.lte('client_timestamp', end);
 
-  const { data, error } = await query;
-  if (error) {
-    alert('导出失败：' + error.message);
-    return;
+    const { data, error } = await query;
+    if (error) {
+      alert('导出失败：' + error.message);
+      return;
+    }
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `analytics-export-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    alert('导出失败：' + err.message);
   }
-
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `analytics-export-${new Date().toISOString().split('T')[0]}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
 }
